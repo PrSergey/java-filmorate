@@ -32,7 +32,8 @@ public class UserController {
     @PatchMapping("/patchUser")
     public User updateUser(@RequestBody @Valid User user) {
         log.info("Обновляем пользователя");
-        IntStream.range(0, users.size()).filter(i -> users.get(i) == user).forEachOrdered(i -> users.set(i, user));
+        Long id = user.getId();
+        IntStream.range(0, users.size()).filter(i -> users.get(i).getId().equals(id)).forEachOrdered(i -> users.set(i, user));
         return user;
     }
 
