@@ -2,12 +2,12 @@ package ru.yandex.practicum.filmorate.model;
 
 
 import lombok.Data;
-import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.validation.CustomValidDate;
 import ru.yandex.practicum.filmorate.validation.CustomValidTime;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
