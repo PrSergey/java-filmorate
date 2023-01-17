@@ -1,9 +1,8 @@
-package ru.yandex.practicum.filmorate.controllers;
+package ru.yandex.practicum.filmorate.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -12,16 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class UserController {
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
     @PostMapping("/user")
     public User addUser(@RequestBody @Valid User user) {
-        log.info("Добавляем пользователя");
+        log.info("Добавляем пользователя {}", user);
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -29,11 +28,15 @@ public class UserController {
         return user;
     }
 
-    @PatchMapping("/patchUser")
+    @PutMapping("/patchUser")
     public User updateUser(@RequestBody @Valid User user) {
-        log.info("Обновляем пользователя");
-        Long id = user.getId();
-        IntStream.range(0, users.size()).filter(i -> users.get(i).getId().equals(id)).forEachOrdered(i -> users.set(i, user));
+
+        if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
+            Long id = user.getId();
+            IntStream.range(0, users.size()).filter(i -> users.get(i).getId().equals(id)).forEachOrdered(i -> users.set(i, user));
+            user.setName(user.getLogin());
+        }
+        log.info("Обновляем пользователя {}", user);
         return user;
     }
 

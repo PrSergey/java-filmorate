@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 
 import lombok.Data;
+import org.hibernate.validator.constraints.UniqueElements;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.Email;
@@ -11,9 +12,8 @@ import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 
 @Data
-@Component
 public class User {
-    @NotNull
+
     private Long id;
 
     @Email
