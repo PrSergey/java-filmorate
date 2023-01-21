@@ -22,17 +22,15 @@ public class UserController {
 
     @GetMapping("/users")
     public List<User> allUsers() {
-        log.debug("Получен запрос GET /users.");
         return users;
     }
 
     @PostMapping("/users")
     public User createUser(@Valid @RequestBody User user) throws ValidationException {
-        log.debug("Получен запрос POST /users.");
         if (checkUser(user)) {
             throw new ValidationException();
         }
-        if (user.getName()==null){
+        if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         user.setId(id++);
@@ -42,15 +40,14 @@ public class UserController {
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        log.debug("Получен запрос PUT /users.");
-        if (checkUser(user) || (users.size()<user.getId())) {
+        if (checkUser(user) || (users.size() < user.getId())) {
             throw new ValidationException();
         }
-        users.set((user.getId()-1), user);
+        users.set((user.getId() - 1), user);
         return user;
     }
 
-    public boolean checkUser (User user) {
+    public boolean checkUser(User user) {
         return user.getLogin().contains(" ");
 
     }
