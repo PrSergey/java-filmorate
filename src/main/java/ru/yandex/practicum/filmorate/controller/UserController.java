@@ -3,13 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeption.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 
 @RestController
@@ -17,37 +14,40 @@ public class UserController {
 
     private final static Logger log = LoggerFactory.getLogger(UserController.class);
     private int id = 1;
-    private List<User> users = new ArrayList<>();
+    private Map <Long, User> users = new HashMap<>();
 
 
     @GetMapping("/users")
     public List<User> allUsers() {
-        return users;
+        return new ArrayList<>(users.values());
     }
 
     @PostMapping("/users")
     public User createUser(@Valid @RequestBody User user) throws ValidationException {
-        if (checkUser(user)) {
-            throw new ValidationException();
+        if (validationUser(user)) {
+            throw new ValidationException("В логине присутсвует пробел.");
         }
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         user.setId(id++);
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        if (checkUser(user) || (users.size() < user.getId())) {
-            throw new ValidationException();
+        if (validationUser(user)) {
+            throw new ValidationException("В логине присутсвует пробел.");
         }
-        users.set((user.getId() - 1), user);
+        if (!users.containsKey(user.getId())){
+            throw new ValidationException("Пользователь с id "+user.getId()+" не найден.");
+        }
+        users.put(user.getId(), user);
         return user;
     }
 
-    public boolean checkUser(User user) {
+    public boolean validationUser(User user) {
         return user.getLogin().contains(" ");
 
     }
