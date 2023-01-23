@@ -32,12 +32,15 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film updateFilm(@RequestBody @Valid Film film) {
-        Long id = film.getId();
-        for (Map.Entry a : films.entrySet()) {
-            if (a.getKey().equals(id)) {
-                films.put(id, film);
-            }
+     //   Long id = film.getId();
+        if (films.containsKey(film.getId())) {
+            films.put(film.getId(), film);
         }
+     //   for (Map.Entry a : films.entrySet()) {
+    //        if (a.getKey().equals(id)) {
+    //            films.put(id, film);
+    //        }
+    //    }
         log.info("Обновляем фильм {}", film);
         return film;
     }
