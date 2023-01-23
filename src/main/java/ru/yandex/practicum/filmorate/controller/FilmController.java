@@ -14,8 +14,6 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
-@RequestMapping
 public class FilmController {
 
     private Long id = 1L;
@@ -31,7 +29,7 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@RequestBody @Valid Film film) {
+    public Film updateFilm(@RequestBody Film film) {
      //   Long id = film.getId();
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
