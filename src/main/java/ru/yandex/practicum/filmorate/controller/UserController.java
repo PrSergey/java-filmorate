@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -47,8 +49,8 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public Map<Long, User> getAllUser() {
+    public List<User> getAllUser() {
         log.debug("Текущее колличество пользователей {}", users.size());
-        return users;
+        return new ArrayList<>(users.values());
     }
 }

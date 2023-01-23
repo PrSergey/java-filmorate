@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -41,8 +43,8 @@ public class FilmController {
     }
 
     @GetMapping("/films")
-    public Map<Long, Film> getAllFilm() {
+    public List<Film> getAllFilm() {
         log.debug("Текущее колличество фильмов {}", films.size());
-        return films;
+        return new ArrayList<>(films.values());
     }
 }
