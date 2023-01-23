@@ -13,13 +13,13 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping
 public class UserController {
 
     private Long id = 1L;
     private final Map<Long, User> users = new HashMap<>();
 
-    @PostMapping("/user")
+    @PostMapping("/users")
     public User addUser(@RequestBody @Valid User user) {
         log.info("Добавляем пользователя {}", user);
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
@@ -31,7 +31,7 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("/updateUser")
+    @PutMapping("/users")
     public User updateUser(@RequestBody @Valid User user) {
         Long id = user.getId();
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {

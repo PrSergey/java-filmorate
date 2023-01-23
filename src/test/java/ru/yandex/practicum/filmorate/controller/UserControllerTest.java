@@ -21,7 +21,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test create user")
     public void addUserTest() throws Exception {
-        mockMvc.perform(post("/api/user")
+        mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test@test.com\", " +
                                 "\"login\": \"test\", " +
@@ -38,7 +38,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test email")
     public void addUserCheckValidEmailTest() throws Exception {
-        mockMvc.perform(post("/api/user")
+        mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"testtest.com\", " +
                                 "\"login\": \"test\", " +
@@ -50,7 +50,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test login")
     public void addUserCheckValidLoginTest() throws Exception {
-        mockMvc.perform(post("/api/user")
+        mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test@test.com\", " +
                                 "\"login\": \" \", " +
@@ -62,7 +62,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test birthday")
     public void addUserCheckValidBirthdayTest() throws Exception {
-        mockMvc.perform(post("/api/user")
+        mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test@test.com\", " +
                                 "\"login\": \"test\", " +
@@ -74,7 +74,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("Test update user")
     public void updateUserTest() throws Exception {
-        mockMvc.perform(put("/api/updateUser")
+        mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, " +
                                 "\"login\": \"updateTest\", " +

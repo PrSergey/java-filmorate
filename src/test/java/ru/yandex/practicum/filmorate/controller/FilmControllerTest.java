@@ -22,7 +22,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Test add film")
     public void addFilmTest() throws Exception {
-        mockMvc.perform(post("/api/film")
+        mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description\", " +
@@ -41,7 +41,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Test Valid date")
     public void addFilmCheckValidDateTest() throws Exception {
-        mockMvc.perform(post("/api/film")
+        mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description\", " +
@@ -53,7 +53,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Test valid name")
     public void addFilmCheckValidNameTest() throws Exception {
-        mockMvc.perform(post("/api/film")
+        mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"\", " +
                                 "\"description\": \"Test description\", " +
@@ -66,7 +66,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Test valid duration")
     public void addFilmCheckValidDurationTest() throws Exception {
-        mockMvc.perform(post("/api/film")
+        mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description\", " +
@@ -78,7 +78,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Test valid description")
     public void addFilmCheckValidDescriptionTest() throws Exception {
-        mockMvc.perform(post("/api/film")
+        mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description 200 aaaaaaaaaaaaaa" +
@@ -94,7 +94,7 @@ public class FilmControllerTest {
     @Test
     @DisplayName("Test update film")
     public void updateFilmTest() throws Exception {
-        mockMvc.perform(put("/api/updateFilm")
+        mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"id\": 1, " +
                                 "\"name\": \"Updated name\", " +

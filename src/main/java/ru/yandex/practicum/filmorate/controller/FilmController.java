@@ -13,13 +13,13 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping
 public class FilmController {
 
     private Long id = 1L;
     private final Map<Long, Film> films = new HashMap<>();
 
-    @PostMapping("/film")
+    @PostMapping("/films")
     public Film addFilm(@RequestBody @Valid Film film) {
         log.info("Добавляем фильм{}", film);
         film.setId(id);
@@ -28,7 +28,7 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping("/updateFilm")
+    @PutMapping("/films")
     public Film updateFilm(@RequestBody @Valid Film film) {
         Long id = film.getId();
         for (Map.Entry a : films.entrySet()) {
