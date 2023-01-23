@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.validation;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -15,7 +14,7 @@ import java.lang.annotation.Target;
 @NotBlank
 public @interface CustomValidLogin {
 
-    String message() default "Логин не должен содержать пробелов";
+    String message() default "Логин не должен быть пустым и содержать пробелов";
 
     Class<?>[] groups() default {};
 

@@ -7,34 +7,41 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class FilmController {
-    private final List<Film> films = new ArrayList<>();
+
+    private Long id = 1L;
+    private final Map<Long, Film> films = new HashMap<>();
 
     @PostMapping("/film")
     public Film addFilm(@RequestBody @Valid Film film) {
         log.info("Добавляем фильм{}", film);
-        films.add(film);
+        film.setId(id);
+        films.put(id, film);
+        id++;
         return film;
     }
 
-    @PutMapping("/patch")
+    @PutMapping("/updateFilm")
     public Film updateFilm(@RequestBody @Valid Film film) {
         Long id = film.getId();
-        IntStream.range(0, films.size()).filter(i -> films.get(i).getId().equals(id)).forEachOrdered(i -> films.set(i, film));
+        for (Map.Entry a : films.entrySet()) {
+            if (a.getKey().equals(id)) {
+                films.put(id, film);
+            }
+        }
         log.info("Обновляем фильм {}", film);
         return film;
     }
 
     @GetMapping("/films")
-    public List<Film> getAllFilm() {
+    public Map<Long, Film> getAllFilm() {
         log.debug("Текущее колличество фильмов {}", films.size());
         return films;
     }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.yandex.practicum.filmorate.validation.CustomValidDate;
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
+@Builder
 public class Film {
 
     private Long id;

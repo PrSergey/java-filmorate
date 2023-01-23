@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 
+import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validation.CustomValidLogin;
 
@@ -9,6 +10,7 @@ import javax.validation.constraints.PastOrPresent;
 import java.time.LocalDate;
 
 @Data
+@Builder
 public class User {
 
     private Long id;
