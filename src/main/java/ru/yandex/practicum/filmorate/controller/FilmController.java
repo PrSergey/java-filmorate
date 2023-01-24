@@ -33,13 +33,13 @@ public class FilmController {
      //   Long id = film.getId();
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
+            log.info("Обновляем фильм {}", film);
         }
      //   for (Map.Entry a : films.entrySet()) {
     //        if (a.getKey().equals(id)) {
     //            films.put(id, film);
     //        }
     //    }
-        log.info("Обновляем фильм {}", film);
         return film;
     }
 

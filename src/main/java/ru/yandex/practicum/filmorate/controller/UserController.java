@@ -42,9 +42,9 @@ public class UserController {
         for (Map.Entry a : users.entrySet()) {
             if (a.getKey().equals(id)) {
                 users.put(id, user);
+                log.info("Обновляем пользователя {}", user);
             }
         }
-        log.info("Обновляем пользователя {}", user);
         return user;
     }
 
