@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -101,6 +102,7 @@ public class FilmControllerTest {
                                 "\"description\": \"Updated description\", " +
                                 "\"releaseDate\": \"1900-11-21\"," +
                                 " \"duration\": \"100\"}"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is5xxServerError())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IDNotFoundException));
     }
 }
