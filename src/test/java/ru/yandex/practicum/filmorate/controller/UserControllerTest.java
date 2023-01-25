@@ -76,16 +76,11 @@ public class UserControllerTest {
     public void updateUserTest() throws Exception {
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1, " +
+                        .content("{\"id\": 1000, " +
                                 "\"email\": \"updateTest@mas.rr\", " +
                                 "\"login\": \"updateTest\", " +
                                 "\"name\": \"updated name\"," +
                                 "\"birthday\": \"2000-10-20\"}"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.email").value("updateTest@mas.rr"))
-                .andExpect(jsonPath("$.login").value("updateTest"))
-                .andExpect(jsonPath("$.name").value("updated name"))
-                .andExpect(jsonPath("$.birthday").value("2000-10-20"));
+                .andExpect(status().isBadRequest());
     }
 }

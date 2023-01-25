@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -28,22 +30,22 @@ public class UserController {
             user.setName(user.getLogin());
         }
         user.setId(id);
-        users.put(id, user);
+        users.put(user.getId(), user);
         id++;
         return user;
     }
 
     @PutMapping("/users")
     public User updateUser(@RequestBody @Valid User user) {
-        Long id = user.getId();
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        for (Map.Entry a : users.entrySet()) {
-            if (a.getKey().equals(id)) {
-                users.put(id, user);
-                log.info("Обновляем пользователя {}", user);
-            }
+        if (users.containsKey(user.getId())) {
+            users.put(user.getId(), user);
+            log.info("Обновляем пользователя {}", user);
+        } else {
+            log.warn("Такого ID нет");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return user;
     }

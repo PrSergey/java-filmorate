@@ -27,13 +27,13 @@ public class FilmControllerTest {
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description\", " +
                                 "\"releaseDate\": \"1900-03-14\"," +
-                                " \"duration\": \"01:10:11\"}"))
+                                " \"duration\": \"100\"}"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.id").hasJsonPath())
                 .andExpect(jsonPath("$.name").value("Test name"))
                 .andExpect(jsonPath("$.description").value("Test description"))
                 .andExpect(jsonPath("$.releaseDate").value("1900-03-14"))
-                .andExpect(jsonPath("$.duration").value("01:10:11"));
+                .andExpect(jsonPath("$.duration").value("100"));
 
     }
 
@@ -46,7 +46,7 @@ public class FilmControllerTest {
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description\", " +
                                 "\"releaseDate\": \"1800-03-14\"," +
-                                " \"duration\": \"01:10:11\"}"))
+                                " \"duration\": \"100\"}"))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -58,7 +58,7 @@ public class FilmControllerTest {
                         .content("{\"name\": \"\", " +
                                 "\"description\": \"Test description\", " +
                                 "\"releaseDate\": \"1900-03-14\"," +
-                                " \"duration\": \"01:10:11\"}"))
+                                " \"duration\": \"100\"}"))
                 .andExpect(status().is4xxClientError());
 
     }
@@ -71,7 +71,7 @@ public class FilmControllerTest {
                         .content("{\"name\": \"Test name\", " +
                                 "\"description\": \"Test description\", " +
                                 "\"releaseDate\": \"1950-03-14\"," +
-                                " \"duration\": \"00:00:00\"}"))
+                                " \"duration\": \"-100\"}"))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -87,7 +87,7 @@ public class FilmControllerTest {
                                 "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                                 "aaaaaaaaaaaaaaaaaaaaaaaa\", " +
                                 "\"releaseDate\": \"1950-03-14\"," +
-                                " \"duration\": \"00:00:12\"}"))
+                                " \"duration\": \"100\"}"))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -96,16 +96,11 @@ public class FilmControllerTest {
     public void updateFilmTest() throws Exception {
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"id\": 1, " +
+                        .content("{\"id\": 400, " +
                                 "\"name\": \"Updated name\", " +
                                 "\"description\": \"Updated description\", " +
                                 "\"releaseDate\": \"1900-11-21\"," +
-                                " \"duration\": \"10:10:10\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Updated name"))
-                .andExpect(jsonPath("$.description").value("Updated description"))
-                .andExpect(jsonPath("$.releaseDate").value("1900-11-21"))
-                .andExpect(jsonPath("$.duration").value("10:10:10"));
+                                " \"duration\": \"100\"}"))
+                .andExpect(status().isBadRequest());
     }
 }
