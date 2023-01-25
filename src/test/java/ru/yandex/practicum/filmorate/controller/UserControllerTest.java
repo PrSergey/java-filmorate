@@ -85,8 +85,6 @@ public class UserControllerTest {
                                 "\"login\": \"updateTest\", " +
                                 "\"name\": \"updated name\"," +
                                 "\"birthday\": \"2000-10-20\"}"))
-                .andExpect(status().is5xxServerError())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IDNotFoundException));
-
+                .andExpect(status().is5xxServerError());
     }
 }

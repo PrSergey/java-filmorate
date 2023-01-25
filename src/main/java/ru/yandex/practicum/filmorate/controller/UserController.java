@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -22,7 +23,7 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
 
     @PostMapping("/users")
-    public User addUser(@RequestBody @Valid User user) {
+    public ResponseEntity<User> addUser(@RequestBody @Valid User user) {
         log.info("Добавляем пользователя {}", user);
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -30,11 +31,11 @@ public class UserController {
         user.setId(id);
         users.put(user.getId(), user);
         id++;
-        return user;
+        return ResponseEntity.ok(user);
     }
 
     @PutMapping("/users")
-    public User updateUser(@RequestBody @Valid User user) {
+    public ResponseEntity<User> updateUser(@RequestBody @Valid User user) {
         if (user.getName() == null || user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
@@ -43,14 +44,14 @@ public class UserController {
             log.info("Обновляем пользователя {}", user);
         } else {
             log.warn("Такого ID нет");
-            throw new IDNotFoundException();
+            return ResponseEntity.internalServerError().body(user);
         }
-        return user;
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/users")
-    public List<User> getAllUser() {
+    public ResponseEntity<List<User>> getAllUser() {
         log.debug("Текущее колличество пользователей {}", users.size());
-        return new ArrayList<>(users.values());
+        return ResponseEntity.ok(new ArrayList<>(users.values()));
     }
 }

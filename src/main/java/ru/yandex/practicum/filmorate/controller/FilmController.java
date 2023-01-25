@@ -4,6 +4,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -21,29 +22,29 @@ public class FilmController {
     private final Map<Long, Film> films = new HashMap<>();
 
     @PostMapping("/films")
-    public Film addFilm(@RequestBody @Valid Film film) {
+    public ResponseEntity<Film> addFilm(@RequestBody @Valid Film film) {
         log.info("Добавляем фильм{}", film);
         film.setId(id);
         films.put(film.getId(), film);
         id++;
-        return film;
+        return ResponseEntity.ok(film);
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@RequestBody Film film) {
+    public ResponseEntity<Film> updateFilm(@RequestBody Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
             log.info("Обновляем фильм {}", film);
         } else {
             log.warn("Такого ID нет");
-            throw new IDNotFoundException();
+            return ResponseEntity.internalServerError().body(film);
         }
-        return film;
+        return ResponseEntity.ok(film);
     }
 
     @GetMapping("/films")
-    public List<Film> getAllFilm() {
+    public ResponseEntity<List<Film>> getAllFilm() {
         log.debug("Текущее колличество фильмов {}", films.size());
-        return new ArrayList<>(films.values());
+        return ResponseEntity.ok(new ArrayList<>(films.values()));
     }
 }
