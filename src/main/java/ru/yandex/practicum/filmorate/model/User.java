@@ -5,13 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.HashSet;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Positive;
 
 @Data
 @AllArgsConstructor
@@ -26,5 +24,7 @@ public class User {
     private String name;
     @Past
     private LocalDate birthday;
+    @Positive
+    private HashSet<Long> friends;
 
 }
