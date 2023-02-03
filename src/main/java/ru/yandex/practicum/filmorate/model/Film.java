@@ -28,6 +28,5 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private int duration;
-    @Positive
     private HashSet<Long> likes;
 }

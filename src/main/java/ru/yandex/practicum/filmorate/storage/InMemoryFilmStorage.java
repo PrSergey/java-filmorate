@@ -30,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (validationFilm(film)) {
             throw new ValidationException("Некорректная дата релиза фильма.");
         }
-        film.setId(id);
+        film.setId(id++);
         films.put(film.getId(),film);
         return film;
     }
