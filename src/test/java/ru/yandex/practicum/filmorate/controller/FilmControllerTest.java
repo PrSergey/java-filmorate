@@ -1,22 +1,47 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.gson.Gson;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FilmController.class)
+
+@SpringBootTest
+@AutoConfigureMockMvc
 public class FilmControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private UserStorage userStorage;
+    @Autowired
+    private FilmStorage filmStorage;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private FilmService filmService;
 
     @Test
     @DisplayName("Test add film")
@@ -100,6 +125,15 @@ public class FilmControllerTest {
                                 "\"description\": \"Updated description\", " +
                                 "\"releaseDate\": \"1900-11-21\"," +
                                 " \"duration\": \"100\"}"))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
     }
+
+    @Test
+    @DisplayName("Test add like a non - existent film")
+    public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
+        User user = userStorage.addUser(User.builder().email("user@user.or").build());
+        mockMvc.perform(put("/films/" + 999 + "/like/" + user.getId()))
+                .andExpect(status().is4xxClientError());
+    }
+
 }
