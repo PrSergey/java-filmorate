@@ -32,7 +32,7 @@ public class InMemoryFilmService implements FilmService{
 
     @Override
     public Film getFilm(Long id) throws ValidationException{
-        if (filmInMemory.getFilms().get(id)==null){
+        if (!filmInMemory.getFilms().containsKey(id)){
             throw new ValidationException("Данного фильма нет в базе.");
         }
         return filmInMemory.getFilms().get(id);
@@ -40,8 +40,6 @@ public class InMemoryFilmService implements FilmService{
 
     @Override
     public Film createFilm(Film film) {
-        HashSet<Long> likes = new HashSet<>();
-        film.setLikes(likes);
         return filmInMemory.createFilm(film);
     }
 
@@ -52,16 +50,17 @@ public class InMemoryFilmService implements FilmService{
 
     @Override
     public Long addLike(Long filmId, Long userId) throws ValidationException {
-        log.debug("Добавление лайка.");
         getFilmLikes(filmId).add(userId);
-
-            return userId;
+        return userId;
     }
 
     @Override
     public Long deleteLike(Long filmId, Long userId) throws ValidationException {
-            getFilmLikes(filmId).remove(userId);
-            return userId;
+        if (!getFilmLikes(filmId).contains(userId)){
+            throw new ValidationException("У фильма с " + filmId + " нет лайка от пользователся с id " + userId);
+        }
+        getFilmLikes(filmId).remove(userId);
+        return userId;
     }
 
     @Override

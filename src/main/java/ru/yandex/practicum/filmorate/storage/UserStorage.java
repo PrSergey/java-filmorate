@@ -5,10 +5,10 @@ import java.util.Map;
 
 
 public interface UserStorage {
-    public List<User> allUsers();
-    public User createUser(User user);
-    public User updateUser(User user);
-    public boolean validationUser(User user);
-    public Map<Long, User> getUsers();
+    List<User> allUsers();
+    User createUser(User user);
+    User updateUser(User user);
+    boolean validationUser(User user);
+    Map<Long, User> getUsers();
 }
 

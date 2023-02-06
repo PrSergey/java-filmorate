@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @Component
@@ -34,9 +31,10 @@ public class InMemoryUserStorage implements UserStorage {
         if (validationUser(user)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
+        user.setFriends(new HashSet<>());
         user.setId(id++);
         users.put(user.getId(), user);
         return user;
@@ -48,6 +46,9 @@ public class InMemoryUserStorage implements UserStorage {
         }
         if (!users.containsKey(user.getId())){
             throw new ValidationException("Пользователь с id "+user.getId()+" не найден.");
+        }
+        if (user.getFriends()==null){
+            user.setFriends(new HashSet<>());
         }
         users.put(user.getId(), user);
         return user;

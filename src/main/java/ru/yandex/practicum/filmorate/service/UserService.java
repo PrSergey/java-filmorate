@@ -7,9 +7,13 @@ import java.util.Set;
 
 public interface UserService {
 
-    public Long addFriend (Long userId, Long friendId);
-    public Long deleteFriend (Long userId, Long friendId);
-    public Set<Long> getFriends (Long userId);
-    public List<Long> getMutualFriends (Long userId, Long friendId);
+    Long addFriend (Long userId, Long friendId);
+    Long deleteFriend (Long userId, Long friendId);
+    List<User> getFriends (Long userId);
+    List<Long> getMutualFriends (Long userId, Long friendId);
+    List<User> getAllUsers();
+    User getUserById(Long id);
+    User createUser(User user);
+    User updateUser(User user);
 
 }
