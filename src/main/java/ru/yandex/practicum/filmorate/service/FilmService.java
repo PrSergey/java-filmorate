@@ -8,6 +8,7 @@ import java.util.Map;
 public interface FilmService {
 
     List<Film> getAllFilms();
+    Film getFilmById(Long id);
     Film getFilm(Long id);
     Film createFilm(Film film);
     Film updateFilm(Film film);

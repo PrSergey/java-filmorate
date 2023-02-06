@@ -31,6 +31,11 @@ public class InMemoryFilmService implements FilmService{
     }
 
     @Override
+    public Film getFilmById(Long id) {
+        return filmInMemory.getFilms().get(id);
+    }
+
+    @Override
     public Film getFilm(Long id) throws ValidationException{
         if (!filmInMemory.getFilms().containsKey(id)){
             throw new ValidationException("Данного фильма нет в базе.");
