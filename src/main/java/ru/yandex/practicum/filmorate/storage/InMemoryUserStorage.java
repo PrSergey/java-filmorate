@@ -4,10 +4,9 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-
 
 import java.util.*;
 
@@ -15,19 +14,20 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
+    private final static Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private int id = 1;
-
 
 
     private Map<Long, User> users = new HashMap<>();
 
 
     public List<User> allUsers() {
+        log.debug("Выдача всех пользователей из хранилища.");
         return new ArrayList<>(users.values());
     }
 
     public User createUser(User user) throws ValidationException {
+        log.debug("Создание пользователя в хранилище.");
         if (validationUser(user)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
@@ -41,13 +41,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public User updateUser(User user) throws ValidationException {
+        log.debug("Обновление пользователя из хранилище.");
         if (validationUser(user)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
-        if (!users.containsKey(user.getId())){
-            throw new ValidationException("Пользователь с id "+user.getId()+" не найден.");
+        if (!users.containsKey(user.getId())) {
+            throw new ExistenceException("Пользователь с id " + user.getId() + " не найден.");
         }
-        if (user.getFriends()==null){
+        if (user.getFriends() == null) {
             user.setFriends(new HashSet<>());
         }
         users.put(user.getId(), user);
@@ -55,6 +56,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     public boolean validationUser(User user) {
+        log.debug("Валидация логина пользователя на пробел.");
         return user.getLogin().contains(" ");
 
     }
