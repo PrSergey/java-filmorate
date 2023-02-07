@@ -7,15 +7,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,8 +34,6 @@ public class FilmControllerTest {
     private UserStorage userStorage;
     @Autowired
     private FilmStorage filmStorage;
-    @Autowired
-    private UserService userService;
     @Autowired
     private FilmService filmService;
 
@@ -120,12 +122,40 @@ public class FilmControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-  //     @Test
- //   @DisplayName("Test add like a non - existent film")
- //   public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
- //       User user = userStorage.addUser(User.builder().email("user@user.or").build());
-//        mockMvc.perform(put("/films/" + 999 + "/like/" + user.getId()))
-//                .andExpect(status().is4xxClientError());
- //   }
+    @Test
+    @DisplayName("Test add like a non - existent film")
+    public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
+        User user = userStorage.addUser(User.builder().email("user@user.or").build());
+        mockMvc.perform(put("/films/" + 777 + "/like/" + user.getId()))
+                .andExpect(status().is4xxClientError());
+    }
 
+    @Test
+    @DisplayName("Test add like")
+    public void shouldReturn200ThenAddScoreIfNoSuchFilm() throws Exception {
+        User user = userStorage.addUser(User.builder().email("user@user.or").build());
+        Film film = filmStorage.addFilm(Film.builder().build());
+        mockMvc.perform(put("/films/" + film.getId() + "/like/" + user.getId()))
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    @DisplayName("Test remove like")
+    void testRemoveLikeFromFilm() {
+        Film film1 = filmStorage.addFilm(Film.builder().build());
+        User user1 = userStorage.addUser(User.builder().email("asd@sad.ru").build());
+        filmService.addLikes(film1.getId(), user1.getId());
+        filmService.deleteLike(film1.getId(), user1.getId());
+        assertEquals(Collections.EMPTY_LIST, new ArrayList<>(filmStorage.getFilm(film1.getId()).getLikes()));
+    }
+
+    @Test
+    @DisplayName("Test popular 1 film")
+    void testGetPopularFilms() {
+        Film film1 = filmStorage.addFilm(Film.builder().build());
+        Film film2 = filmStorage.addFilm(Film.builder().build());
+        User user1 = userStorage.addUser(User.builder().email("asd@sad.ru").build());
+        filmService.addLikes(film2.getId(), user1.getId());
+        assertEquals(List.of(film2), filmService.getPopularFilms(1L));
+    }
 }
