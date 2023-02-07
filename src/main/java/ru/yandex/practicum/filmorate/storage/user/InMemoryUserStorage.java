@@ -1,7 +1,7 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -37,14 +37,19 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
         } else {
-           throw new RuntimeException("Такого ID нет");
+            throw new NotFoundException("Такого ID нет");
         }
         return user;
     }
 
     @Override
     public void deleteUser(User user) {
-        users.remove(user.getId());
+        if (users.containsValue(user)) {
+            users.remove(user.getId());
+        } else {
+            throw new NotFoundException("Такого пользователя нет");
+        }
+
     }
 
     @Override
@@ -54,6 +59,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(Long id) {
-        return users.get(id);
+        if (users.containsKey(id)) {
+            return users.get(id);
+        } else {
+            throw new NotFoundException("Такого ID нет");
+        }
+
     }
 }
