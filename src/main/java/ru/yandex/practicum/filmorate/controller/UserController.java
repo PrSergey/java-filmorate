@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -50,23 +51,23 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable final Long id, @PathVariable final Long otherId) {
+    public Set<Long> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
         return userService.getCommonFriendList(id, otherId);
     }
 
     @GetMapping("/users/{id}/friends")
-    public List<User> getFriends(@PathVariable final Long id) {
+    public List<User> getFriends(@PathVariable Long id) {
         return userService.getUserFriends(id);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
-    void addFriends(@PathVariable final Long id, @PathVariable final Long friendId) {
+    void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} добавил пользователя {} в друзья", id, friendId);
         userService.addFriends(id, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
-    void deleteFriends(@PathVariable final Long id, @PathVariable final Long friendId) {
+    void deleteFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} удалил пользователя {} из друзей", id, friendId);
         userService.deleteFriends(id, friendId);
     }

@@ -58,16 +58,17 @@ public class UserService {
         user2.getFriends().remove(user1.getId());
     }
 
-    public List<User> getCommonFriendList(Long userId, Long friendId) {
+    public Set<Long> getCommonFriendList(Long userId, Long friendId) {
         User user1 = getUser(userId);
         User user2 = getUser(friendId);
 
         Set<Long> commonFriends = new HashSet<>(user1.getFriends());
         commonFriends.retainAll(user2.getFriends());
 
-        return commonFriends.stream()
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
+        return commonFriends;
+     //   return commonFriends.stream()
+     //           .map(userStorage::getUser)
+      //          .collect(Collectors.toList());
     }
 
 }
