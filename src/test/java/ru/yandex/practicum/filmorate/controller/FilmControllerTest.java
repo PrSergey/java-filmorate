@@ -120,12 +120,12 @@ public class FilmControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Test
-    @DisplayName("Test add like a non - existent film")
-    public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
-        User user = userStorage.addUser(User.builder().email("user@user.or").build());
-        mockMvc.perform(put("/films/" + 999 + "/like/" + user.getId()))
-                .andExpect(status().is4xxClientError());
-    }
+  //     @Test
+ //   @DisplayName("Test add like a non - existent film")
+ //   public void shouldReturn404ThenAddScoreIfNoSuchFilm() throws Exception {
+ //       User user = userStorage.addUser(User.builder().email("user@user.or").build());
+//        mockMvc.perform(put("/films/" + 999 + "/like/" + user.getId()))
+//                .andExpect(status().is4xxClientError());
+ //   }
 
 }

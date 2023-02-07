@@ -4,10 +4,7 @@ import org.springframework.stereotype.Component;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -23,7 +20,7 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         user.setId(id);
-        user.getFriends().clear();
+        user.setFriends(new HashSet<>());
         users.put(user.getId(), user);
         id++;
 
