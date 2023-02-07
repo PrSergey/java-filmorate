@@ -23,6 +23,7 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         user.setId(id);
+        user.getFriends().clear();
         users.put(user.getId(), user);
         id++;
 
