@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -11,13 +10,11 @@ import java.time.LocalDate;
 import java.util.*;
 
 @Component
+@Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final static Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
     final static LocalDate BIRTH_OF_CINEMA = LocalDate.of(1895, 12, 28);
     private int id = 1;
-
-
     private Map<Long, Film> films = new HashMap<>();
 
 

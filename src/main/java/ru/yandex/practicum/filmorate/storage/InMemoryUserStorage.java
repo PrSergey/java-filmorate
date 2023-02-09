@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.Data;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -12,14 +11,11 @@ import java.util.*;
 
 @Data
 @Component
+@Slf4j
 public class InMemoryUserStorage implements UserStorage {
 
-    private final static Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private int id = 1;
-
-
     private Map<Long, User> users = new HashMap<>();
-
 
     public List<User> allUsers() {
         log.debug("Выдача всех пользователей из хранилища.");

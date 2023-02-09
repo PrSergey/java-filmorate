@@ -18,13 +18,11 @@ import java.util.stream.Collectors;
 @Service
 public class InMemoryFilmService implements FilmService {
 
-    List<Long> topFilmsOfLikes;
     FilmStorage filmInMemory;
 
     @Autowired
     public InMemoryFilmService(FilmStorage filmInMemory) {
         this.filmInMemory = filmInMemory;
-        topFilmsOfLikes = new ArrayList<>();
     }
 
     @Override
@@ -35,7 +33,7 @@ public class InMemoryFilmService implements FilmService {
 
 
     @Override
-    public Film getFilm(Long id) throws ValidationException {
+    public Film getFilmById(Long id) throws ValidationException {
         log.debug("Выдача фильма из сервиса.");
         if (!filmInMemory.getFilms().containsKey(id)) {
             throw new ExistenceException("Данного фильма нет в базе.");
@@ -66,16 +64,16 @@ public class InMemoryFilmService implements FilmService {
     public Long deleteLike(Long filmId, Long userId) throws ValidationException {
         log.debug("Удаление лайка к фильму в сервисе.");
         if (!getFilmLikes(filmId).contains(userId)) {
-            throw new ExistenceException("У фильма с " + filmId + " нет лайка от пользователся с id " + userId);
+            throw new ExistenceException("У фильма с id " + filmId + " нет лайка от пользователся с id " + userId);
         }
         getFilmLikes(filmId).remove(userId);
         return userId;
     }
 
     @Override
-    public List getTopFilmsOfLikes(Long countFilms) {
+    public List<Film> getTopFilmsOfLikes(Long countFilms) {
         log.debug("Выдача фильма по топу из сервиса.");
-        List<Film> allFilms = new ArrayList<>(filmInMemory.getFilms().values());
+        List<Film> allFilms = new ArrayList<>();
         for (Film film : filmInMemory.getFilms().values()) {
             if (film.getLikes().size() > 0) {
                 allFilms.add(film);

@@ -8,7 +8,7 @@ public interface FilmService {
 
     List<Film> getAllFilms();
 
-    Film getFilm(Long id);
+    Film getFilmById(Long id);
 
     Film createFilm(Film film);
 
@@ -18,6 +18,6 @@ public interface FilmService {
 
     Long deleteLike(Long filmId, Long userId);
 
-    List getTopFilmsOfLikes(Long countFilms);
+    List<Film> getTopFilmsOfLikes(Long countFilms);
 
 }

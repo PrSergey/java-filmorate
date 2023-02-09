@@ -3,20 +3,22 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @Slf4j
 public class FilmController {
 
-    @Autowired
-    private final FilmService filmsInMemory;
 
+    private final FilmService filmsInMemory;
+    @Autowired
     public FilmController(FilmService filmsInMemory) {
         this.filmsInMemory = filmsInMemory;
     }
@@ -33,7 +35,7 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
+    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException, ExistenceException {
         return filmsInMemory.updateFilm(film);
     }
 
@@ -42,7 +44,7 @@ public class FilmController {
         if (id < 0) {
             throw new ValidationException("Id не может быть отрицательным.");
         }
-        return filmsInMemory.getFilm(id);
+        return filmsInMemory.getFilmById(id);
     }
 
     @PutMapping("/films/{id}/like/{userId}")
@@ -56,11 +58,8 @@ public class FilmController {
     }
 
     @GetMapping("/films/popular")
-    public List getPopularFilms(@RequestParam(required = false) Long count) {
-        if (count == null) {
-            return filmsInMemory.getTopFilmsOfLikes(10L);
-        }
-        return filmsInMemory.getTopFilmsOfLikes(count);
+    public List<Film> getPopularFilms(@RequestParam(required = false) Long count) {
+        return filmsInMemory.getTopFilmsOfLikes(Objects.requireNonNullElse(count, 10L));
     }
 
 }

@@ -4,16 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.util.Set;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Positive;
+import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 @Builder
 public class User {
+    @Positive
     private long id;
     @Email
     @NotBlank
