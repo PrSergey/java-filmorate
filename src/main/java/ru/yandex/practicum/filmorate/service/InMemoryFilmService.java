@@ -73,7 +73,7 @@ public class InMemoryFilmService implements FilmService {
     @Override
     public List<Film> getTopFilmsOfLikes(Long countFilms) {
         log.debug("Выдача фильма по топу из сервиса.");
-        List<Film> allFilms = new ArrayList<>();
+        List<Film> allFilms = new ArrayList<>(filmInMemory.getFilms().values());
         for (Film film : filmInMemory.getFilms().values()) {
             if (film.getLikes().size() > 0) {
                 allFilms.add(film);

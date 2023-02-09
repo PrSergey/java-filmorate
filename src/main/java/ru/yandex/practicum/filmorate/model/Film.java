@@ -15,7 +15,6 @@ import java.util.HashSet;
 @AllArgsConstructor
 @Builder
 public class Film {
-    @Positive
     private long id;
     @NotBlank
     @NotEmpty

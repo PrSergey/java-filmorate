@@ -141,7 +141,7 @@ class FilmControllerTest {
 
     @Test
     public void getFilmByNegativeId() {
-        ValidationException exception = Assertions.assertThrows(ValidationException.class,
+        ExistenceException exception = Assertions.assertThrows(ExistenceException.class,
                 () -> filmController.getFilmById(-1L));
         Assertions.assertEquals("Id не может быть отрицательным.", exception.getMessage());
     }

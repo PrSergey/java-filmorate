@@ -42,7 +42,7 @@ public class FilmController {
     @GetMapping("/films/{id}")
     public Film getFilmById(@PathVariable Long id) throws ValidationException {
         if (id < 0) {
-            throw new ValidationException("Id не может быть отрицательным.");
+            throw new ExistenceException("Id не может быть отрицательным.");
         }
         return filmsInMemory.getFilmById(id);
     }

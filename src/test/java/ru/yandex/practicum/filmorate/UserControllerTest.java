@@ -188,10 +188,10 @@ class UserControllerTest {
     public void addFriendWithIncorrectIdUserAndIncorrectIdFriends (){
         User userFirst = createUser();
         userController.createUser(userFirst);
-        ValidationException exceptionFriend = Assertions.assertThrows(ValidationException.class,
+        ExistenceException exceptionFriend = Assertions.assertThrows(ExistenceException.class,
                 () -> userController.addFriend(1L, -1L));
         Assertions.assertEquals("Id не может быть отрицательный", exceptionFriend.getMessage());
-        ValidationException exceptionUser = Assertions.assertThrows(ValidationException.class,
+        ExistenceException exceptionUser = Assertions.assertThrows(ExistenceException.class,
                 () -> userController.addFriend(-1L, 1L));
         Assertions.assertEquals("Id не может быть отрицательный", exceptionUser.getMessage());
     }

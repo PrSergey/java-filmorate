@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -42,7 +43,7 @@ public class UserController {
     @PutMapping("/users/{id}/friends/{friendId}")
     public Long addFriend(@PathVariable Long id, @PathVariable Long friendId) {
         if (id < 0 || friendId < 0) {
-            throw new ValidationException("Id не может быть отрицательный");
+            throw new ExistenceException("Id не может быть отрицательный");
         }
         return userInMemory.addFriend(id, friendId);
     }
