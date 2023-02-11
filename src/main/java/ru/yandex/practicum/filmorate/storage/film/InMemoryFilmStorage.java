@@ -25,6 +25,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         if (films.containsKey(film.getId())) {
+            if (film.getLikes() == null || film.getLikes().isEmpty()) {
+                film.setLikes(new HashSet<>());
+            }
             films.put(film.getId(), film);
         } else {
             throw new NotFoundException("Такого ID нет");

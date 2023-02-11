@@ -33,6 +33,9 @@ public class InMemoryUserStorage implements UserStorage {
             user.setName(user.getLogin());
         }
         if (users.containsKey(user.getId())) {
+            if (user.getFriends() == null || user.getFriends().isEmpty()) {
+                user.setFriends(new HashSet<>());
+            }
             users.put(user.getId(), user);
         } else {
             throw new NotFoundException("Такого ID нет");
