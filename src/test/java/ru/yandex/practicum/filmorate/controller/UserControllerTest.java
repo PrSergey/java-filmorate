@@ -1,26 +1,34 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.core.NestedCheckedException;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.util.NestedServletException;
+import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+    @Autowired
+    private UserService userService;
 
     @Test
     @DisplayName("Test create user")
@@ -85,6 +93,47 @@ public class UserControllerTest {
                                 "\"login\": \"updateTest\", " +
                                 "\"name\": \"updated name\"," +
                                 "\"birthday\": \"2000-10-20\"}"))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().is4xxClientError());
     }
+
+    @Test
+    @DisplayName("Add friends")
+    void testAddToFriends() {
+        User user1 = userService.addUser(User.builder().email("asd@qw.re").build());
+        User user2 = userService.addUser(User.builder().email("wsd@qw.re").build());
+
+        userService.addFriends(user1.getId(), user2.getId());
+        assertEquals(List.of(user2), userService.getUserFriends(user1.getId()));
+        assertEquals(List.of(user1), userService.getUserFriends(user2.getId()));
+    }
+
+    @Test
+    @DisplayName("Add non exist friend")
+    void testAddToNonExistFriend() {
+        User user1 = userService.addUser(User.builder().email("asd@qw.re").build());
+        assertThrows(NotFoundException.class, () -> userService.addFriends(user1.getId(), 20L));
+    }
+
+    @Test
+    @DisplayName("Delete friend")
+    void testRemoveFromFriends() {
+        User user1 = userService.addUser(User.builder().email("asd@qw.re").build());
+        User user2 = userService.addUser(User.builder().email("qwe@qw.re").build());
+        userService.addFriends(user1.getId(), user2.getId());
+        userService.deleteFriends(user1.getId(), user2.getId());
+        assertEquals(Collections.EMPTY_LIST, userService.getUserFriends(user1.getId()));
+    }
+
+    @Test
+    @DisplayName("Get common friends")
+    void testGetCommonFriends() {
+        User user1 = userService.addUser(User.builder().email("asd@qw.re").build());
+        User user2 = userService.addUser(User.builder().email("qwe@qw.re").build());
+        User user3 = userService.addUser(User.builder().email("ewq@qw.re").build());
+        userService.addFriends(user1.getId(), user2.getId());
+        userService.addFriends(user1.getId(), user3.getId());
+        userService.addFriends(user2.getId(), user3.getId());
+        assertEquals(List.of(user1), userService.getCommonFriendList(user2.getId(), user3.getId()));
+    }
+
 }
