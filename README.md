@@ -1,7 +1,7 @@
 # java-filmorate
 Template repository for Filmorate project.
 ## ER - диграмма
-![ER_filmorate](https://user-images.githubusercontent.com/112753342/221540208-fa29f594-a23a-456d-84aa-b060e9d9b795.png)
+![ER-filmorate](https://user-images.githubusercontent.com/112753342/221633496-cc25b310-22b9-4b3a-b0e1-60980a0bcc29.png)
 ## Примеры запросов
 ### Получение всех пользоватей:
 ```
