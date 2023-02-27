@@ -1,54 +1,66 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.*;
+import java.util.List;
 
 @RestController
 public class UserController {
 
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
-    private int id = 1;
-    private Map <Long, User> users = new HashMap<>();
+    private final UserService userInMemory;
 
+    @Autowired
+    public UserController(UserService userInMemory) {
+        this.userInMemory = userInMemory;
+    }
 
     @GetMapping("/users")
-    public List<User> allUsers() {
-        return new ArrayList<>(users.values());
+    public List<User> getAllUsers() {
+        return userInMemory.getAllUsers();
     }
 
     @PostMapping("/users")
     public User createUser(@Valid @RequestBody User user) throws ValidationException {
-        if (validationUser(user)) {
-            throw new ValidationException("В логине присутсвует пробел.");
-        }
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
-        user.setId(id++);
-        users.put(user.getId(), user);
-        return user;
+        return userInMemory.createUser(user);
     }
 
     @PutMapping("/users")
     public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        if (validationUser(user)) {
-            throw new ValidationException("В логине присутсвует пробел.");
-        }
-        if (!users.containsKey(user.getId())){
-            throw new ValidationException("Пользователь с id "+user.getId()+" не найден.");
-        }
-        users.put(user.getId(), user);
-        return user;
+        return userInMemory.updateUser(user);
     }
 
-    public boolean validationUser(User user) {
-        return user.getLogin().contains(" ");
-
+    @GetMapping("/users/{id}")
+    public User getUserById(@PathVariable Long id) {
+        return userInMemory.getUserById(id);
     }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public Long addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        if (id < 0 || friendId < 0) {
+            throw new ExistenceException("Id не может быть отрицательный");
+        }
+        return userInMemory.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public Long deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        return userInMemory.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public List<User> getFriendsOfUser(@PathVariable Long id) {
+        return userInMemory.getFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public List<User> getMutualFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userInMemory.getMutualFriends(id, otherId);
+    }
+
 }

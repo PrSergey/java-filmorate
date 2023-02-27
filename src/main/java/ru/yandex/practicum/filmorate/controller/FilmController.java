@@ -1,52 +1,65 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 @RestController
+@Slf4j
 public class FilmController {
 
-    private final static Logger log = LoggerFactory.getLogger(FilmController.class);
-    final static LocalDate BIRTH_OF_CINEMA = LocalDate.of(1895, 12, 28);
-    private int id = 1;
-    private Map<Long, Film> films = new HashMap<>();
 
+    private final FilmService filmsInMemory;
+    @Autowired
+    public FilmController(FilmService filmsInMemory) {
+        this.filmsInMemory = filmsInMemory;
+    }
 
     @GetMapping("/films")
-    public List<Film> allFilms() {
-        return new ArrayList<>(films.values());
+    public List<Film> getAllFilms() {
+        return filmsInMemory.getAllFilms();
     }
+
 
     @PostMapping("/films")
     public Film createFilm(@Valid @RequestBody Film film) throws ValidationException {
-        if (validationFilm(film)) {
-            throw new ValidationException("Некорректная дата релиза фильма.");
-        }
-        film.setId(id);
-        films.put(film.getId(),film);
-        return film;
+        return filmsInMemory.createFilm(film);
     }
 
     @PutMapping("/films")
-    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
-        if (validationFilm(film) ) {
-            throw new ValidationException("Введены некорректные данные фильма, при обновление.");
-        }
-        if (!films.containsKey(film.getId())){
-            throw new ValidationException("При обновлении, фильм не найден в базе.");
-        }
-        films.put(film.getId(),film);
-        return film;
+    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException, ExistenceException {
+        return filmsInMemory.updateFilm(film);
     }
 
-    public boolean validationFilm(Film film) {
-        return film.getReleaseDate().isBefore(BIRTH_OF_CINEMA);
+    @GetMapping("/films/{id}")
+    public Film getFilmById(@PathVariable Long id) throws ValidationException {
+        if (id < 0) {
+            throw new ExistenceException("Id не может быть отрицательным.");
+        }
+        return filmsInMemory.getFilmById(id);
     }
+
+    @PutMapping("/films/{id}/like/{userId}")
+    public Long addLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmsInMemory.addLike(id, userId);
+    }
+
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public Long deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmsInMemory.deleteLike(id, userId);
+    }
+
+    @GetMapping("/films/popular")
+    public List<Film> getPopularFilms(@RequestParam(required = false) Long count) {
+        return filmsInMemory.getTopFilmsOfLikes(Objects.requireNonNullElse(count, 10L));
+    }
+
 }
