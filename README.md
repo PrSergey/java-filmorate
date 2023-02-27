@@ -42,12 +42,6 @@ SELECT *
 FROM movie
 WHERE film_id=1;
 ```
-### Получение фильмов по id:
-```
-SELECT * 
-FROM movie
-WHERE film_id=1;
-```
 ### Получение 10 популярных фильмов:
 ```
 SELECT film_id,
