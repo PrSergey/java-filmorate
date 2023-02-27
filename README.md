@@ -25,7 +25,7 @@ WHERE user_id=2;
 SELECT friend_id
 FROM friendship
 WHERE user_id=1
-AND friend IN (SELECT friend_id 
+AND friend_id IN (SELECT friend_id 
 FROM friendship
 WHERE user_id = 2
 AND confirmation IS TRUE)
