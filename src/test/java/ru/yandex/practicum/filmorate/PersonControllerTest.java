@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Person;
 import ru.yandex.practicum.filmorate.service.InMemoryUserService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
@@ -22,7 +22,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-class UserControllerTest {
+class PersonControllerTest {
 
     static UserController userController;
 
@@ -37,8 +37,8 @@ class UserControllerTest {
         validator = factory.getValidator();
     }
 
-    public User createUser(){
-        return  User.builder()
+    public Person createUser(){
+        return  Person.builder()
                 .id(1)
                 .login("Login")
                 .email("asdfe@mail.com")
@@ -49,7 +49,7 @@ class UserControllerTest {
 
     @Test
     public void createUserWithFailLogin (){
-        User user = User.builder()
+        Person person = Person.builder()
                 .id(1)
                 .login("Login ")
                 .email("asdf@email.com")
@@ -57,106 +57,106 @@ class UserControllerTest {
                 .name("Name")
                 .build();
         ValidationException exception = Assertions.assertThrows(ValidationException.class,
-                () -> userController.createUser(user));
+                () -> userController.createUser(person));
         Assertions.assertEquals("В логине присутсвует пробел.", exception.getMessage());
     }
 
     @Test
     public void createUserWithIncorrectEmail (){
-        User user = User.builder()
+        Person person = Person.builder()
                 .id(1)
                 .login("Login")
                 .email("asdfemail.com")
                 .birthday(LocalDate.of(2022, 12, 20))
                 .name("Name")
                 .build();
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Set<ConstraintViolation<Person>> violations = validator.validate(person);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void createUserWithoutEmail (){
-        User user = User.builder()
+        Person person = Person.builder()
                 .id(1)
                 .login("Login")
                 .birthday(LocalDate.of(2022, 12, 20))
                 .name("Name")
                 .build();
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Set<ConstraintViolation<Person>> violations = validator.validate(person);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void createUserWithEmptyLogin (){
-        User user = User.builder()
+        Person person = Person.builder()
                 .id(1)
                 .email("asdf@email.com")
                 .birthday(LocalDate.of(2022, 12, 20))
                 .name("Name")
                 .build();
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Set<ConstraintViolation<Person>> violations = validator.validate(person);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void createUserWithFailBirthday (){
-        User user = User.builder()
+        Person person = Person.builder()
                 .id(1)
                 .email("asdf@email.com")
                 .birthday(LocalDate.of(2023, 12, 20))
                 .name("Name")
                 .build();
-        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        Set<ConstraintViolation<Person>> violations = validator.validate(person);
         assertFalse(violations.isEmpty());
     }
 
     @Test
     public void createUserWithoutName (){
-        User user = User.builder()
+        Person person = Person.builder()
                 .id(1)
                 .login("Login")
                 .email("asdfe@mail.com")
                 .birthday(LocalDate.of(2022, 12, 20))
                 .build();
-        userController.createUser(user);
-        assertEquals(userController.getAllUsers().get(0).getName(), user.getLogin());
+        userController.createUser(person);
+        assertEquals(userController.getAllUsers().get(0).getName(), person.getLogin());
     }
 
     @Test
     public void createCorrectUser (){
-        User user = createUser();
-        assertEquals(userController.createUser(user), user);
+        Person person = createUser();
+        assertEquals(userController.createUser(person), person);
     }
 
     @Test
     public void getTwoUser (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        User userSecond = createUser();
-        userController.createUser(userSecond);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Person personSecond = createUser();
+        userController.createUser(personSecond);
         assertEquals(userController.getAllUsers().size(), 2);
     }
 
     @Test
     public void updateUserWithCorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        User userSecond = User.builder()
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Person personSecond = Person.builder()
                 .id(1)
                 .login("Login")
                 .email("asdfe@mail.com")
                 .name("NameSecond")
                 .birthday(LocalDate.of(2022, 12, 20))
                 .build();
-        userController.updateUser(userSecond);
-        assertEquals(userController.getUserById(1L), userSecond);
+        userController.updateUser(personSecond);
+        assertEquals(userController.getUserById(1L), personSecond);
     }
 
     @Test
     public void updateUserWithIncorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        User userSecond = User.builder()
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Person personSecond = Person.builder()
                 .id(2)
                 .login("Login")
                 .email("asdfe@mail.com")
@@ -164,21 +164,21 @@ class UserControllerTest {
                 .birthday(LocalDate.of(2022, 12, 20))
                 .build();
         ExistenceException exception = Assertions.assertThrows(ExistenceException.class,
-                () -> userController.updateUser(userSecond));
+                () -> userController.updateUser(personSecond));
         Assertions.assertEquals("Пользователь с id 2 не найден.", exception.getMessage());
     }
 
     @Test
     public void getUserByCorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        Assertions.assertEquals(userFirst, userController.getUserById(1L));
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Assertions.assertEquals(personFirst, userController.getUserById(1L));
     }
 
     @Test
     public void getUserByIncorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
         ExistenceException exception = Assertions.assertThrows(ExistenceException.class,
                 () -> userController.getUserById(2L));
         Assertions.assertEquals("Пользователь с id 2 не найден", exception.getMessage());
@@ -186,8 +186,8 @@ class UserControllerTest {
 
     @Test
     public void addFriendWithIncorrectIdUserAndIncorrectIdFriends (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
         ExistenceException exceptionFriend = Assertions.assertThrows(ExistenceException.class,
                 () -> userController.addFriend(1L, -1L));
         Assertions.assertEquals("Id не может быть отрицательный", exceptionFriend.getMessage());
@@ -198,18 +198,18 @@ class UserControllerTest {
 
     @Test
     public void addFriendWithCorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        User userSecond = createUser();
-        userController.createUser(userSecond);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Person personSecond = createUser();
+        userController.createUser(personSecond);
         userController.addFriend(1L, 2L);
         Assertions.assertEquals(userController.getUserById(1L).getFriends().size(), 1);
     }
 
     @Test
     public void deleteFriendWithIncorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
         ExistenceException exceptionUser = Assertions.assertThrows(ExistenceException.class,
                 () -> userController.deleteFriend(1L, 2L));
         Assertions.assertEquals("У пользователя с id 1 нет друга с id 2", exceptionUser.getMessage());
@@ -217,10 +217,10 @@ class UserControllerTest {
 
     @Test
     public void deleteFriendWithCorrectId (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        User userSecond = createUser();
-        userController.createUser(userSecond);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Person personSecond = createUser();
+        userController.createUser(personSecond);
         userController.addFriend(1L, 2L);
         userController.deleteFriend(1L, 2L);
         Assertions.assertEquals(userController.getFriendsOfUser(1L).size(), 0);
@@ -228,15 +228,15 @@ class UserControllerTest {
 
     @Test
     public void getMutualFriends (){
-        User userFirst = createUser();
-        userController.createUser(userFirst);
-        User userSecond = createUser();
-        userController.createUser(userSecond);
-        User userThird = createUser();
-        userController.createUser(userThird);
+        Person personFirst = createUser();
+        userController.createUser(personFirst);
+        Person personSecond = createUser();
+        userController.createUser(personSecond);
+        Person personThird = createUser();
+        userController.createUser(personThird);
         userController.addFriend(1L, 2L);
         userController.addFriend(3L, 2L);
-        Assertions.assertEquals(userController.getMutualFriends(1L, 3L).get(0), userSecond);
+        Assertions.assertEquals(userController.getMutualFriends(1L, 3L).get(0), personSecond);
     }
 
 

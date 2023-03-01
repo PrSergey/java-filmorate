@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Person;
 
 import java.util.*;
 
@@ -15,49 +15,49 @@ import java.util.*;
 public class InMemoryUserStorage implements UserStorage {
 
     private int id = 1;
-    private Map<Long, User> users = new HashMap<>();
+    private Map<Long, Person> users = new HashMap<>();
 
-    public List<User> allUsers() {
+    public List<Person> allUsers() {
         log.debug("Выдача всех пользователей из хранилища.");
         return new ArrayList<>(users.values());
     }
 
-    public User createUser(User user) throws ValidationException {
+    public Person createUser(Person person) throws ValidationException {
         log.debug("Создание пользователя в хранилище.");
-        if (validationUser(user)) {
+        if (validationUser(person)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
+        if (person.getName() == null || person.getName().isBlank()) {
+            person.setName(person.getLogin());
         }
-        user.setFriends(new HashSet<>());
-        user.setId(id++);
-        users.put(user.getId(), user);
-        return user;
+        person.setFriends(new HashSet<>());
+        person.setId(id++);
+        users.put(person.getId(), person);
+        return person;
     }
 
-    public User updateUser(User user) throws ValidationException {
+    public Person updateUser(Person person) throws ValidationException {
         log.debug("Обновление пользователя из хранилище.");
-        if (validationUser(user)) {
+        if (validationUser(person)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
-        if (!users.containsKey(user.getId())) {
-            throw new ExistenceException("Пользователь с id " + user.getId() + " не найден.");
+        if (!users.containsKey(person.getId())) {
+            throw new ExistenceException("Пользователь с id " + person.getId() + " не найден.");
         }
-        if (user.getFriends() == null) {
-            user.setFriends(new HashSet<>());
+        if (person.getFriends() == null) {
+            person.setFriends(new HashSet<>());
         }
-        users.put(user.getId(), user);
-        return user;
+        users.put(person.getId(), person);
+        return person;
     }
 
-    public boolean validationUser(User user) {
+    public boolean validationUser(Person person) {
         log.debug("Валидация логина пользователя на пробел.");
-        return user.getLogin().contains(" ");
+        return person.getLogin().contains(" ");
 
     }
 
-    public Map<Long, User> getUsers() {
+    public Map<Long, Person> getUsers() {
         return users;
     }
 }

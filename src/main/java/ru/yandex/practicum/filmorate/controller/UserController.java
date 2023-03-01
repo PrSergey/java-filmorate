@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Person;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -21,22 +21,22 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public List<User> getAllUsers() {
+    public List<Person> getAllUsers() {
         return userInMemory.getAllUsers();
     }
 
     @PostMapping("/users")
-    public User createUser(@Valid @RequestBody User user) throws ValidationException {
-        return userInMemory.createUser(user);
+    public Person createUser(@Valid @RequestBody Person person) throws ValidationException {
+        return userInMemory.createUser(person);
     }
 
     @PutMapping("/users")
-    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        return userInMemory.updateUser(user);
+    public Person updateUser(@Valid @RequestBody Person person) throws ValidationException {
+        return userInMemory.updateUser(person);
     }
 
     @GetMapping("/users/{id}")
-    public User getUserById(@PathVariable Long id) {
+    public Person getUserById(@PathVariable Long id) {
         return userInMemory.getUserById(id);
     }
 
@@ -54,12 +54,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}/friends")
-    public List<User> getFriendsOfUser(@PathVariable Long id) {
+    public List<Person> getFriendsOfUser(@PathVariable Long id) {
         return userInMemory.getFriends(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
-    public List<User> getMutualFriends(@PathVariable Long id, @PathVariable Long otherId) {
+    public List<Person> getMutualFriends(@PathVariable Long id, @PathVariable Long otherId) {
         return userInMemory.getMutualFriends(id, otherId);
     }
 

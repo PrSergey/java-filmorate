@@ -18,13 +18,21 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int id = 1;
     private Map<Long, Film> films = new HashMap<>();
 
-
+    @Override
     public List<Film> allFilms() {
         log.debug("Выдача всех фильмов из хранилища.");
         return new ArrayList<>(films.values());
     }
 
+    @Override
+    public Film getFilmById(Long id) {
+        if (!films.containsKey(id)) {
+            throw new ExistenceException("Данного фильма нет в базе.");
+        }
+        return films.get(id);
+    }
 
+    @Override
     public Film createFilm(Film film) throws ValidationException {
         log.debug("Создание фильма в хранилище.");
         if (validationFilm(film)) {
@@ -38,7 +46,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-
+    @Override
     public Film updateFilm(Film film) throws ValidationException {
         log.debug("Обновление фильма в хранилище.");
         if (validationFilm(film)) {
@@ -53,12 +61,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         films.put(film.getId(), film);
         return film;
     }
-
+    @Override
     public boolean validationFilm(Film film) {
         log.debug("Валидация даты релиза фильма.");
         return film.getReleaseDate().isBefore(BIRTH_OF_CINEMA);
     }
-
+    @Override
     public Map<Long, Film> getFilms() {
         return films;
     }

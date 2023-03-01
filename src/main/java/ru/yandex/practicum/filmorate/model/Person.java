@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @Builder
-public class User {
+public class Person {
     private long id;
     @Email
     @NotBlank

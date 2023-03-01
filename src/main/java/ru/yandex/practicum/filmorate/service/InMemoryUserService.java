@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Person;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
@@ -23,13 +23,13 @@ public class InMemoryUserService implements UserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<Person> getAllUsers() {
         log.debug("Выдача всех пользователей из сервиса.");
         return userInMemory.allUsers();
     }
 
     @Override
-    public User getUserById(Long id) {
+    public Person getUserById(Long id) {
         log.debug("Выдача пользователя из сервиса.");
         if (!userInMemory.getUsers().containsKey(id)) {
             throw new ExistenceException("Пользователь с id " + id + " не найден");
@@ -38,15 +38,15 @@ public class InMemoryUserService implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
+    public Person createUser(Person person) {
         log.debug("Создание пользователя в сервисе.");
-        return userInMemory.createUser(user);
+        return userInMemory.createUser(person);
     }
 
     @Override
-    public User updateUser(User user) {
+    public Person updateUser(Person person) {
         log.debug("Обновление пользователя в сервисе.");
-        return userInMemory.updateUser(user);
+        return userInMemory.updateUser(person);
     }
 
     @Override
@@ -71,19 +71,19 @@ public class InMemoryUserService implements UserService {
     }
 
     @Override
-    public List<User> getFriends(Long userId) throws ValidationException {
+    public List<Person> getFriends(Long userId) throws ValidationException {
         log.debug("Выдача друзей в сервисе.");
-        List<User> userFriends = new ArrayList<>();
+        List<Person> personFriends = new ArrayList<>();
         for (Long friend : getUserById(userId).getFriends()) {
-            userFriends.add(getUserById(friend));
+            personFriends.add(getUserById(friend));
         }
-        return userFriends;
+        return personFriends;
     }
 
     @Override
-    public List<User> getMutualFriends(Long userId, Long friendId) throws ValidationException {
+    public List<Person> getMutualFriends(Long userId, Long friendId) throws ValidationException {
         log.debug("Выдача общих друзей в сервисе.");
-        List<User> mutualFriends = new ArrayList<>();
+        List<Person> mutualFriends = new ArrayList<>();
         if (getUserFriends(userId) == null) {
             return mutualFriends;
         }

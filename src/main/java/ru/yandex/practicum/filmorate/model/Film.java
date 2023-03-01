@@ -21,6 +21,7 @@ public class Film {
     private String name;
     @Size(max = 200)
     private String description;
+    private String mpa;
     private LocalDate releaseDate;
     @Positive
     private int duration;

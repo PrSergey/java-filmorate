@@ -8,6 +8,7 @@ import java.util.Map;
 
 public interface FilmStorage {
     List<Film> allFilms();
+    Film getFilmById(Long id);
 
     Film createFilm(Film film);
 
@@ -16,4 +17,5 @@ public interface FilmStorage {
     boolean validationFilm(Film film);
 
     Map<Long, Film> getFilms();
+
 }
