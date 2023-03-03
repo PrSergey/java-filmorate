@@ -1,18 +1,25 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
 public interface UserStorage {
 
-    User addUser(User user);
+    List<User> getAll();
 
-    User updateUser(User user);
+    User getById(Long id) throws NotFoundException;
 
-    void deleteUser(User user);
+    User add(User user);
 
-    List<User> getAllUsers();
+    User update(User user);
 
-    User getUser(Long id);
+    void delete(User user);
+
+    void makeFriends(Long userId, Long friendId);
+
+    void removeFriends(Long userId, Long friendId);
+
+    List<Long> getUserFriendsById(Long userId);
 }

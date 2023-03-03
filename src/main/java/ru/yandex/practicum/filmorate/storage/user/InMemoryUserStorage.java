@@ -1,3 +1,4 @@
+/*
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
@@ -68,3 +69,4 @@ public class InMemoryUserStorage implements UserStorage {
 
     }
 }
+*/
