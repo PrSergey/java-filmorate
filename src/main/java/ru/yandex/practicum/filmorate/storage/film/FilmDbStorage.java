@@ -38,7 +38,7 @@ public class FilmDbStorage implements FilmStorage{
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
                         "FROM films AS f " +
-                        "JOIN MPA_ratings AS m" +
+                        "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService));
     }
@@ -54,7 +54,7 @@ public class FilmDbStorage implements FilmStorage{
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
                         "FROM films AS f " +
-                        "JOIN MPA_ratings AS m" +
+                        "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id " +
                         "WHERE f.id = ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), id)
@@ -135,7 +135,7 @@ public class FilmDbStorage implements FilmStorage{
                         "f.mpa_id, " +
                         "m.name AS mpa_name " +
                         "FROM films AS f " +
-                        "JOIN MPA_ratings AS m" +
+                        "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id " +
                         "LEFT JOIN (SELECT film_id, " +
                         "      COUNT(user_id) rate " +

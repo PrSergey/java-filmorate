@@ -17,12 +17,12 @@ public class MpaDbStorage implements MpaStorage {
     private static final String SELECT_ALL_QUERY =
             "SELECT m.id, " +
                     "m.name " +
-                    "FROM MPA_ratings AS m;";
+                    "FROM mpa_ratings AS m;";
 
     private static final String SELECT_BY_ID_QUERY =
             "SELECT m.id, " +
                     "m.name " +
-                    "FROM MPA_ratings AS m " +
+                    "FROM mpa_ratings AS m " +
                     "WHERE m.id = ?;";
 
     private final JdbcTemplate jdbcTemplate;
