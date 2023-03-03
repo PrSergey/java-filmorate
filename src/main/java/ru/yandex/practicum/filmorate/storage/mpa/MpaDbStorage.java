@@ -14,25 +14,27 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MpaDbStorage implements MpaStorage {
 
+    private static final String SELECT_ALL_QUERY =
+            "SELECT m.id, " +
+                    "m.name " +
+                    "FROM MPA_ratings AS m;";
+
+    private static final String SELECT_BY_ID_QUERY =
+            "SELECT m.id, " +
+                    "m.name " +
+                    "FROM MPA_ratings AS m " +
+                    "WHERE m.id = ?;";
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Mpa> getAll() {
-        String sqlQuery =
-                "SELECT m.id, " +
-                        "m.name " +
-                        "FROM MPA_ratings AS m;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeMpa(rs));
+        return jdbcTemplate.query(SELECT_ALL_QUERY, (rs, rn) -> makeMpa(rs));
     }
 
     @Override
     public Mpa getById(Long id) throws NotFoundException {
-        String sqlQuery =
-                "SELECT m.id, " +
-                        "m.name " +
-                        "FROM MPA_ratings AS m " +
-                        "WHERE m.id = ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeMpa(rs), id)
+        return jdbcTemplate.query(SELECT_BY_ID_QUERY, (rs, rn) -> makeMpa(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Рейтинг с id=" + id + " не существует"));
@@ -43,5 +45,4 @@ public class MpaDbStorage implements MpaStorage {
         String name = rs.getString("name");
         return new Mpa(id, name);
     }
-
 }
