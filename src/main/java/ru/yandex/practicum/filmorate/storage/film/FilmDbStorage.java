@@ -40,7 +40,7 @@ public class FilmDbStorage implements FilmStorage{
                         "FROM films AS f " +
                         "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService));
+        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs, genreService));
     }
 
     @Override
@@ -57,7 +57,7 @@ public class FilmDbStorage implements FilmStorage{
                         "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id " +
                         "WHERE f.id = ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs, genreService), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с id=" + id + " не существует"));
@@ -144,7 +144,7 @@ public class FilmDbStorage implements FilmStorage{
                         ") r ON f.id = r.film_id " +
                         "ORDER BY r.rate DESC " +
                         "LIMIT ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, genreService), count);
+        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs, genreService), count);
     }
 
     private Film makeFilm(ResultSet rs, GenreService genreService) throws SQLException {
