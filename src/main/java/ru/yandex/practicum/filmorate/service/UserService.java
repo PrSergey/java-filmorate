@@ -40,6 +40,14 @@ public class UserService {
     }
 
     public void makeFriends(Long id, Long friendId) throws NotFoundException {
+        User user1 = getById(id);
+        User friend = getById(friendId);
+        if (user1 == null) {
+            throw new NotFoundException("Пользователь с id=" + id + " не существует");
+        }
+        if (friend == null) {
+            throw new NotFoundException("Пользователь с id=" + id + " не существует");
+        }
         userStorage.makeFriends(id, friendId);
     }
 
