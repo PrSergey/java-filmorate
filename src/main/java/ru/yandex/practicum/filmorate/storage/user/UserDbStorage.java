@@ -91,11 +91,12 @@ public class UserDbStorage implements UserStorage{
 
     @Override
     public void delete(User user) {
-        String sqlQuery = "DELETE FROM users WHERE id = ?;";
-        int deletedRows = jdbcTemplate.update(sqlQuery, user.getId());
-        if (deletedRows == 0) {
+        if (getById(user.getId()) == null) {
             throw new RuntimeException("User with id " + user.getId() + " does not exist");
         }
+        String sqlQuery = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, user.getId());
+
     }
 
     @Override

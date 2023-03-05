@@ -46,9 +46,6 @@ public class FilmService {
 
     public void removeLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
-        if (!filmStorage.hasLikeFromUser(id, userId)) {
-            throw new NotFoundException("Лайк пользователя " + userId + " фильму с id=" + id + " не найден");
-        }
         filmStorage.removeLike(id, userId);
     }
 
