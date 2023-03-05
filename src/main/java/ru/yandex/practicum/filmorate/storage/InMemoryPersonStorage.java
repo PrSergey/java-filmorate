@@ -12,19 +12,38 @@ import java.util.*;
 @Data
 @Component
 @Slf4j
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryPersonStorage implements PersonStorage {
 
     private int id = 1;
     private Map<Long, Person> users = new HashMap<>();
 
-    public List<Person> allUsers() {
+    public List<Person> getAllPerson() {
         log.debug("Выдача всех пользователей из хранилища.");
         return new ArrayList<>(users.values());
     }
 
-    public Person createUser(Person person) throws ValidationException {
+    @Override
+    public void addFriends(Long user_id, Long friend_id) {
+        users.get(user_id).getFriends().add(getPersonById(friend_id));
+    }
+
+    @Override
+    public boolean deleteFriend(Long user_id, Long friend_id) {
+        return getPersonById(user_id).getFriends().remove(getPersonById(friend_id));
+    }
+
+    @Override
+    public Person getPersonById(Long id) {
+        log.debug("Выдача пользователя по id.");
+        if (!users.containsKey(id)) {
+            throw new ExistenceException("Пользователь с id " + id + " не найден.");
+        }
+        return users.get(id);
+    }
+
+    public Person createPerson(Person person) throws ValidationException {
         log.debug("Создание пользователя в хранилище.");
-        if (validationUser(person)) {
+        if (validationPerson(person)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
         if (person.getName() == null || person.getName().isBlank()) {
@@ -36,9 +55,9 @@ public class InMemoryUserStorage implements UserStorage {
         return person;
     }
 
-    public Person updateUser(Person person) throws ValidationException {
+    public Person updatePerson(Person person) throws ValidationException {
         log.debug("Обновление пользователя из хранилище.");
-        if (validationUser(person)) {
+        if (validationPerson(person)) {
             throw new ValidationException("В логине присутсвует пробел.");
         }
         if (!users.containsKey(person.getId())) {
@@ -51,13 +70,12 @@ public class InMemoryUserStorage implements UserStorage {
         return person;
     }
 
-    public boolean validationUser(Person person) {
+    public boolean validationPerson(Person person) {
         log.debug("Валидация логина пользователя на пробел.");
         return person.getLogin().contains(" ");
-
     }
 
-    public Map<Long, Person> getUsers() {
+    public Map<Long, Person> getPerson() {
         return users;
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Person;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.PersonStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,59 +14,58 @@ import java.util.Set;
 
 @Service
 @Slf4j
-public class InMemoryUserService implements UserService {
-    UserStorage userInMemory;
+public class PersonServiceImp implements PersonService {
+    PersonStorage personInMemory;
 
     @Autowired
-    public InMemoryUserService(UserStorage userInMemory) {
-        this.userInMemory = userInMemory;
+    public PersonServiceImp(PersonStorage personInMemory) {
+        this.personInMemory = personInMemory;
     }
 
     @Override
-    public List<Person> getAllUsers() {
+    public List<Person> getAllPerson() {
         log.debug("Выдача всех пользователей из сервиса.");
-        return userInMemory.allUsers();
+        return personInMemory.getAllPerson();
     }
 
     @Override
-    public Person getUserById(Long id) {
+    public Person getPersonById(Long id) {
         log.debug("Выдача пользователя из сервиса.");
-        if (!userInMemory.getUsers().containsKey(id)) {
+        if (personInMemory.getPersonById(id)==null) {
             throw new ExistenceException("Пользователь с id " + id + " не найден");
         }
-        return userInMemory.getUsers().get(id);
+        return personInMemory.getPersonById(id);
     }
 
     @Override
-    public Person createUser(Person person) {
+    public Person createPerson(Person person) {
         log.debug("Создание пользователя в сервисе.");
-        return userInMemory.createUser(person);
+        return personInMemory.createPerson(person);
     }
 
     @Override
-    public Person updateUser(Person person) {
+    public Person updatePerson(Person person) {
         log.debug("Обновление пользователя в сервисе.");
-        return userInMemory.updateUser(person);
+        return personInMemory.updatePerson(person);
     }
 
     @Override
     public Long addFriend(Long userId, Long friendId) {
         log.debug("Добавление друга в сервисе.");
-        getUserFriends(userId).add(friendId);
-        getUserFriends(friendId).add(userId);
+        personInMemory.addFriends(userId, friendId);
         return friendId;
-
     }
 
     @Override
     public Long deleteFriend(Long userId, Long friendId) {
         log.debug("Удаление друга в сервисе.");
-        if (!getUserFriends(userId).contains(friendId)) {
+        if (!getFriends(userId).contains(getPersonById(friendId))) {
             throw new ExistenceException("У пользователя с id " + userId + " нет друга с id " + friendId);
-        } else {
-            getUserFriends(userId).remove(friendId);
-            getUserFriends(friendId).remove(userId);
+        }
+        if (personInMemory.deleteFriend(userId,friendId)) {
             return friendId;
+        } else {
+            throw new ExistenceException("У пользователя с id " + userId + " нет друга с id " + friendId);
         }
     }
 
@@ -74,8 +73,8 @@ public class InMemoryUserService implements UserService {
     public List<Person> getFriends(Long userId) throws ValidationException {
         log.debug("Выдача друзей в сервисе.");
         List<Person> personFriends = new ArrayList<>();
-        for (Long friend : getUserById(userId).getFriends()) {
-            personFriends.add(getUserById(friend));
+        for (Person friend : getPersonById(userId).getFriends()) {
+            personFriends.add(friend);
         }
         return personFriends;
     }
@@ -84,23 +83,24 @@ public class InMemoryUserService implements UserService {
     public List<Person> getMutualFriends(Long userId, Long friendId) throws ValidationException {
         log.debug("Выдача общих друзей в сервисе.");
         List<Person> mutualFriends = new ArrayList<>();
-        if (getUserFriends(userId) == null) {
+        if (getPersonFriends(userId) == null) {
             return mutualFriends;
         }
-        for (Long friends : getUserFriends(userId)) {
-            if (getUserFriends(friendId).contains(friends)) {
-                mutualFriends.add(getUserById(friends));
+        for (Person friends : getPersonFriends(userId)) {
+            if (getPersonFriends(friendId).contains(friends)) {
+                mutualFriends.add(friends);
             }
         }
 
         return mutualFriends;
     }
 
-    public Set<Long> getUserFriends(Long userId) throws ValidationException {
-        if (!userInMemory.getUsers().containsKey(userId)) {
+    public Set<Person> getPersonFriends(Long userId) throws ValidationException {
+        log.debug("Выдача списка друзей пользователя.");
+        if (!personInMemory.getPerson().containsKey(userId)) {
             throw new ExistenceException("Пользователь c id" + userId + " не найден в базе");
         } else {
-            return userInMemory.getUsers().get(userId).getFriends();
+            return personInMemory.getPersonById(userId).getFriends();
         }
     }
 }

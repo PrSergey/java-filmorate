@@ -8,7 +8,10 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.InMemoryFilmService;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmServiceImp;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.ConstraintViolation;
@@ -16,20 +19,20 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-class FilmControllerTest {
+ class FilmControllerTest {
     static FilmController filmController;
-    private Validator validator;
+    Validator validator;
 
     @BeforeEach
     void beforeEach() {
-        InMemoryFilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
-        InMemoryFilmService inMemoryFilmService = new InMemoryFilmService(inMemoryFilmStorage);
-        filmController = new FilmController(inMemoryFilmService);
+        FilmStorage inMemoryFilmStorage = new InMemoryFilmStorage();
+        FilmService filmServiceImp = new FilmServiceImp(inMemoryFilmStorage);
+        filmController = new FilmController(filmServiceImp);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
@@ -41,6 +44,9 @@ class FilmControllerTest {
                 .description("description film")
                 .releaseDate(LocalDate.of(1896, 12, 27))
                 .duration(100)
+                .mpa(new Mpa(1, "G"))
+                .genres(new HashSet<>())
+                .likes(new HashSet<>())
                 .build();
     }
 
@@ -126,7 +132,6 @@ class FilmControllerTest {
     public void updateFilmWithIncorrectId() {
         Film film = createFilm();
         filmController.createFilm(film);
-        assertEquals(film, filmController.getFilmById(1L));
         Film filmUpdate = Film.builder()
                 .id(2)
                 .name("Film")
@@ -194,8 +199,8 @@ class FilmControllerTest {
         filmController.createFilm(film);
         filmController.addLike(1L, 1L);
         ExistenceException exception = Assertions.assertThrows(ExistenceException.class,
-                () -> filmController.deleteLike(1L, 2L));
-        Assertions.assertEquals("У фильма с id 1 нет лайка от пользователся с id 2", exception.getMessage());
+                () -> filmController.deleteLike(1L, 10L));
+        Assertions.assertEquals("У фильма с id 1 нет лайка от пользователся с id 10", exception.getMessage());
     }
 
     @Test

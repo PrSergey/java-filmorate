@@ -4,7 +4,7 @@ import ru.yandex.practicum.filmorate.model.Person;
 
 import java.util.List;
 
-public interface UserService {
+public interface PersonService {
 
     Long addFriend(Long userId, Long friendId);
 
@@ -14,12 +14,12 @@ public interface UserService {
 
     List<Person> getMutualFriends(Long userId, Long friendId);
 
-    List<Person> getAllUsers();
+    List<Person> getAllPerson();
 
-    Person getUserById(Long id);
+    Person getPersonById(Long id);
 
-    Person createUser(Person person);
+    Person createPerson(Person person);
 
-    Person updateUser(Person person);
+    Person updatePerson(Person person);
 
 }

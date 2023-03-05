@@ -2,10 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.ArrayList;
@@ -16,19 +19,19 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class InMemoryFilmService implements FilmService {
+public class FilmServiceImp implements FilmService {
 
     FilmStorage filmInMemory;
 
     @Autowired
-    public InMemoryFilmService(FilmStorage filmInMemory) {
-        this.filmInMemory = filmInMemory;
+    public FilmServiceImp(@Qualifier("dbFilmStorage") FilmStorage filmStorage) {
+        this.filmInMemory = filmStorage;
     }
 
     @Override
     public List<Film> getAllFilms() {
         log.debug("Выдача всех фильмов из сервиса.");
-        return filmInMemory.allFilms();
+        return filmInMemory.getAllFilms();
     }
 
 
@@ -41,6 +44,7 @@ public class InMemoryFilmService implements FilmService {
     @Override
     public Film createFilm(Film film) {
         log.debug("Создание фильма в сервисе.");
+        film.setLikes(new HashSet<>());
         return filmInMemory.createFilm(film);
     }
 
@@ -53,7 +57,7 @@ public class InMemoryFilmService implements FilmService {
     @Override
     public Long addLike(Long filmId, Long userId) throws ValidationException {
         log.debug("Добавление лайка к фильму в сервисе.");
-        getFilmLikes(filmId).add(userId);
+        filmInMemory.addLikeByFilm(filmId, userId);
         return userId;
     }
 
@@ -63,7 +67,7 @@ public class InMemoryFilmService implements FilmService {
         if (!getFilmLikes(filmId).contains(userId)) {
             throw new ExistenceException("У фильма с id " + filmId + " нет лайка от пользователся с id " + userId);
         }
-        getFilmLikes(filmId).remove(userId);
+        filmInMemory.deleteLikeByFilm(filmId, userId);
         return userId;
     }
 
@@ -80,7 +84,42 @@ public class InMemoryFilmService implements FilmService {
         return allFilms.stream().limit(countFilms).collect(Collectors.toList());
     }
 
+    @Override
+    public List<Genre> getAllGenre() {
+        log.debug("Выдача всех жанров.");
+        return filmInMemory.getAllGenre();
+    }
+
+    @Override
+    public Genre getGenreById(Long id) {
+        log.debug("Выдача жанра по id.");
+        for (Genre genre : getAllGenre()) {
+            if (genre.getId() == id) {
+                return genre;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<Mpa> getAllMpa() {
+        log.debug("Выдача всех возрастных ограничений.");
+        return filmInMemory.getAllMpa();
+    }
+
+    @Override
+    public Mpa getMpaById(Long id) {
+        log.debug("Выдача возрастных ограничений по id.");
+        for (Mpa mpa : getAllMpa()) {
+            if (mpa.getId() == id) {
+                return mpa;
+            }
+        }
+        return null;
+    }
+
     public HashSet<Long> getFilmLikes(Long filmId) throws ValidationException {
+        log.debug("Выдача лайков фильма.");
         if (!filmInMemory.getFilms().containsKey(filmId)) {
             throw new ExistenceException("Фильм с данным Id не найден.");
         } else {

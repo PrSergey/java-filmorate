@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -14,12 +16,14 @@ import java.util.*;
 @Slf4j
 public class InMemoryFilmStorage implements FilmStorage {
 
+
+
     final static LocalDate BIRTH_OF_CINEMA = LocalDate.of(1895, 12, 28);
     private int id = 1;
     private Map<Long, Film> films = new HashMap<>();
 
     @Override
-    public List<Film> allFilms() {
+    public List<Film> getAllFilms() {
         log.debug("Выдача всех фильмов из хранилища.");
         return new ArrayList<>(films.values());
     }
@@ -65,6 +69,26 @@ public class InMemoryFilmStorage implements FilmStorage {
     public boolean validationFilm(Film film) {
         log.debug("Валидация даты релиза фильма.");
         return film.getReleaseDate().isBefore(BIRTH_OF_CINEMA);
+    }
+
+    @Override
+    public List<Mpa> getAllMpa() {
+        return null;
+    }
+
+    @Override
+    public boolean deleteLikeByFilm(Long filmId, Long userId) {
+        return getFilmById(filmId).getLikes().remove(userId);
+    }
+
+    @Override
+    public boolean addLikeByFilm(Long filmId, Long userId) {
+        return getFilmById(filmId).getLikes().add(userId);
+    }
+
+    @Override
+    public List<Genre> getAllGenre() {
+        return null;
     }
     @Override
     public Map<Long, Film> getFilms() {

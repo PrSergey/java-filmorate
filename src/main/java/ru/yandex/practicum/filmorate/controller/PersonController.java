@@ -5,39 +5,39 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Person;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.service.PersonService;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-public class UserController {
+public class PersonController {
 
-    private final UserService userInMemory;
+    private final PersonService userInMemory;
 
     @Autowired
-    public UserController(UserService userInMemory) {
+    public PersonController(PersonService userInMemory) {
         this.userInMemory = userInMemory;
     }
 
     @GetMapping("/users")
     public List<Person> getAllUsers() {
-        return userInMemory.getAllUsers();
+        return userInMemory.getAllPerson();
     }
 
     @PostMapping("/users")
-    public Person createUser(@Valid @RequestBody Person person) throws ValidationException {
-        return userInMemory.createUser(person);
+    public Person createPerson(@Valid @RequestBody Person person) throws ValidationException {
+        return userInMemory.createPerson(person);
     }
 
     @PutMapping("/users")
-    public Person updateUser(@Valid @RequestBody Person person) throws ValidationException {
-        return userInMemory.updateUser(person);
+    public Person updatePerson(@Valid @RequestBody Person person) throws ValidationException {
+        return userInMemory.updatePerson(person);
     }
 
     @GetMapping("/users/{id}")
-    public Person getUserById(@PathVariable Long id) {
-        return userInMemory.getUserById(id);
+    public Person getPersonById(@PathVariable Long id) {
+        return userInMemory.getPersonById(id);
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
