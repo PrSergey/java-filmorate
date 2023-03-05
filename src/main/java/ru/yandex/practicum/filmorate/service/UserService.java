@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +57,7 @@ public class UserService {
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
         List<User> friends = new ArrayList<>();
-        List<Long> friendsIds = userStorage.getUserFriendsById(id);
+        Set<Long> friendsIds = userStorage.getUserFriendsById(id);
         if (friendsIds == null) {
             return friends;
         }

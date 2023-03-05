@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -18,6 +19,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -28,7 +30,6 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
-
     private final UserStorage userStorage;
 
     @Override
@@ -162,18 +163,24 @@ public class FilmDbStorage implements FilmStorage {
                         "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
     }
-
+    @Override
+    public Set<Long> getAllLikes(Long id) {
+        String sql = "SELECT user_id from likes_list where film_id = ?";
+        List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
+        return new HashSet<>(list);
+    }
     private Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
-        Set<Genre> genres = genreService.getByFilmId(id);
+        List<Genre> genres = genreService.getByFilmId(id);
+        Set<Long> likes = getAllLikes(id);
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
                 rs.getString("mpa_name")
         );
-        return new Film(id, name, description, releaseDate, duration, genres, mpa);
+        return new Film(id, name, description, releaseDate, duration, genres, mpa, likes);
     }
 }

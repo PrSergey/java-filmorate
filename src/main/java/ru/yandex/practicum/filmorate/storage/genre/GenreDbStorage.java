@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -23,9 +22,9 @@ public class GenreDbStorage implements GenreStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Set<Genre> getAll() {
+    public List<Genre> getAll() {
         String sqlQuery = "SELECT g.id, g.name FROM genres AS g;";
-        return (Set<Genre>) jdbcTemplate.query(sqlQuery, this::mapToGenre);
+        return jdbcTemplate.query(sqlQuery, this::mapToGenre);
     }
 
     @Override
@@ -38,15 +37,15 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public Set<Genre> getByFilmId(Long filmId) {
+    public List<Genre> getByFilmId(Long filmId) {
         String sqlQuery = "SELECT g.id, g.name FROM films_genres AS fg " +
                 "JOIN genres AS g ON fg.genre_id = g.id " +
                 "WHERE fg.film_id = ?;";
-        return (Set<Genre>) jdbcTemplate.query(sqlQuery, this::mapToGenre, filmId);
+        return jdbcTemplate.query(sqlQuery, this::mapToGenre, filmId);
     }
 
     @Override
-    public void addAllToFilmId(Long filmId, Set<Genre> genres) {
+    public void addAllToFilmId(Long filmId, List<Genre> genres) {
         List<Genre> distinctGenres = genres.stream().distinct().collect(toList());
         jdbcTemplate.batchUpdate(
                 "INSERT INTO films_genres (genre_id, film_id) VALUES (?, ?);",

@@ -13,8 +13,10 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -109,12 +111,13 @@ public class UserDbStorage implements UserStorage{
     }
 
     @Override
-    public List<Long> getUserFriendsById(Long userId) throws NotFoundException {
+    public Set<Long> getUserFriendsById(Long userId) throws NotFoundException {
         String sqlQuery =
                 "SELECT fr.friend_id, " +
                         "FROM friendships AS fr " +
                         "WHERE fr.user_id = ?;";
-        return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
+         List<Long> list = jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
+        return new HashSet<>(list);
     }
 
     private User makeUser(ResultSet rs) throws SQLException {
@@ -124,7 +127,7 @@ public class UserDbStorage implements UserStorage{
         String name = rs.getString("name");
         Date birthday = rs.getDate("birthday");
 
-        List<Long> friends = getUserFriendsById(id);
-        return new User(id, email, login, name, birthday);
+        Set<Long> friends = getUserFriendsById(id);
+        return new User(id, email, login, name, birthday, friends);
     }
 }

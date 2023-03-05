@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,10 +37,11 @@ public class Film {
     @Positive
     private Integer duration;
 
-    private Set<Genre> genres;
+    private List<Genre> genres;
 
     private Mpa mpa;
 
-    // private Set<Long> likes;
+    private Set<Long> likes;
+
 
 }
