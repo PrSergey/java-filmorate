@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -10,22 +9,26 @@ import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.GenreService;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
-public class FilmDbStorage implements FilmStorage{
+public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
+
+    private final UserStorage userStorage;
 
     @Override
     public List<Film> getAll() {
@@ -40,7 +43,7 @@ public class FilmDbStorage implements FilmStorage{
                         "FROM films AS f " +
                         "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs, genreService));
+        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs));
     }
 
     @Override
@@ -57,7 +60,7 @@ public class FilmDbStorage implements FilmStorage{
                         "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id " +
                         "WHERE f.id = ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs, genreService), id)
+        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с id=" + id + " не существует"));
@@ -84,10 +87,8 @@ public class FilmDbStorage implements FilmStorage{
 
     @Override
     public Film update(Film film) {
-        String sqlQuery = "UPDATE films " +
-                "SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? " +
-                "WHERE id = ?;";
-        jdbcTemplate.update(
+        String sqlQuery = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
+        int updatedRows = jdbcTemplate.update(
                 sqlQuery,
                 film.getName(),
                 film.getDescription(),
@@ -96,23 +97,37 @@ public class FilmDbStorage implements FilmStorage{
                 film.getMpa().getId(),
                 film.getId()
         );
+        if (updatedRows == 0) {
+            throw new RuntimeException("Film with id " + film.getId() + " does not exist");
+        }
         return getById(film.getId());
     }
 
     @Override
     public void delete(Film film) {
         String sqlQuery = "DELETE FROM films WHERE id = ?;";
-        jdbcTemplate.update(sqlQuery, film.getId());
+        int rowsAffected = jdbcTemplate.update(sqlQuery, film.getId());
+        if (rowsAffected == 0) {
+            throw new RuntimeException("Фильм с id " + film.getId() + " не найден в базе данных");
+        }
     }
 
     @Override
     public void addLike(Long id, Long userId) {
+        User user = userStorage.getById(userId);
+        if (user == null) {
+            throw new RuntimeException("Пользователь с id " + userId + " не найден в базе данных");
+        }
         String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, id);
     }
 
     @Override
     public void removeLike(Long id, Long userId) {
+        User user = userStorage.getById(userId);
+        if (user == null) {
+            throw new RuntimeException("Пользователь с id " + userId + " не найден в базе данных");
+        }
         String sqlQuery = "DELETE FROM likes_list WHERE film_id = ? AND user_id = ?;";
         jdbcTemplate.update(sqlQuery, id, userId);
     }
@@ -144,10 +159,10 @@ public class FilmDbStorage implements FilmStorage{
                         ") r ON f.id = r.film_id " +
                         "ORDER BY r.rate DESC " +
                         "LIMIT ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs, genreService), count);
+        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
     }
 
-    private Film makeFilm(ResultSet rs, GenreService genreService) throws SQLException {
+    private Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");

@@ -72,6 +72,10 @@ public class UserDbStorage implements UserStorage{
         String sqlQuery = "UPDATE users " +
                 "SET email = ?, login = ?, name = ?, birthday = ? " +
                 "WHERE id = ?;";
+        User existingUser = getById(user.getId());
+        if (existingUser == null) {
+            throw new RuntimeException("User not found");
+        }
         jdbcTemplate.update(
                 sqlQuery,
                 user.getEmail(),
@@ -86,7 +90,10 @@ public class UserDbStorage implements UserStorage{
     @Override
     public void delete(User user) {
         String sqlQuery = "DELETE FROM users WHERE id = ?;";
-        jdbcTemplate.update(sqlQuery, user.getId());
+        int deletedRows = jdbcTemplate.update(sqlQuery, user.getId());
+        if (deletedRows == 0) {
+            throw new RuntimeException("User with id " + user.getId() + " does not exist");
+        }
     }
 
     @Override

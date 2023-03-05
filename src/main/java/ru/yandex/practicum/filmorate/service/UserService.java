@@ -32,22 +32,25 @@ public class UserService {
     }
 
     public User update(User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         return userStorage.update(user);
     }
 
     public void makeFriends(Long id, Long friendId) throws NotFoundException {
+        userStorage.makeFriends(id, friendId);
+    }
+
+    public void removeFriends(Long id, Long friendId) throws NotFoundException {
         User user = getById(id);
         User friend = getById(friendId);
         if (user == null) {
             throw new NotFoundException("Пользователь с id=" + id + " не существует");
         }
-        if (user == friend) {
-            throw new NotFoundException("Пользователь с id=" + friendId + " не существует");
+        if (friend == null) {
+            throw new NotFoundException("Пользователь с id=" + id + " не существует");
         }
-        userStorage.makeFriends(id, friendId);
-    }
-
-    public void removeFriends(Long id, Long friendId) throws NotFoundException {
         userStorage.removeFriends(id, friendId);
     }
 

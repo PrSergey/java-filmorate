@@ -12,7 +12,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private final static int TOP = 10;
     private final FilmStorage filmStorage;
     private final GenreService genreService;
 
@@ -53,9 +52,6 @@ public class FilmService {
     }
 
     public List<Film> getTop(Integer count) {
-        if (count == null) {
-            count = TOP;
-        }
         return filmStorage.getTop(count);
     }
 }

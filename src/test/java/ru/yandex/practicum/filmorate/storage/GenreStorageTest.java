@@ -48,12 +48,12 @@ public class GenreStorageTest {
     }
 
     @Test
-    void getByFilmIdCorrectGenres() {
+    void getByFilmId_filmIdCorrectGenres() {
         Film film = Film.builder()
-                .name("test")
-                .description("test")
-                .duration(100)
-                .releaseDate(Date.valueOf("1990-10-10"))
+                .name("MyName")
+                .description("my description")
+                .duration(150)
+                .releaseDate(Date.valueOf("1999-01-01"))
                 .mpa(Mpa.builder().id(1L).build())
                 .build();
         Long filmId = filmStorage.add(film).getId();
