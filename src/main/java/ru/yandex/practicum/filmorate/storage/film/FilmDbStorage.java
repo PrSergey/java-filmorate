@@ -89,8 +89,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
+        if (getById(film.getId()) == null) {
+            throw new RuntimeException("Фильм с id " + film.getId() + " не найден в базе данных");
+        }
         String sqlQuery = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_id = ? WHERE id = ?";
-        int updatedRows = jdbcTemplate.update(
+        jdbcTemplate.update(
                 sqlQuery,
                 film.getName(),
                 film.getDescription(),
@@ -99,9 +102,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getMpa().getId(),
                 film.getId()
         );
-        if (updatedRows == 0) {
-            throw new RuntimeException("Film with id " + film.getId() + " does not exist");
-        }
         return getById(film.getId());
     }
 

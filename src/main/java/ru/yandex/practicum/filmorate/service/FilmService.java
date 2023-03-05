@@ -38,9 +38,7 @@ public class FilmService {
         }
         return filmStorage.update(film);
     }
-   // public Set<Long> getAllLikes (Film film) {
-   //     return
-   // }
+
     public void addLike(Long id, Long userId) throws NotFoundException {
         Film film = filmStorage.getById(id);
         filmStorage.addLike(id, userId);
