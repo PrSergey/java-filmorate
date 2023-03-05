@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,9 +34,11 @@ public class DbPersonStorage implements PersonStorage {
 
     @Override
     public Person getPersonById(Long id) {
-        if (countPerson()<id){
+        log.debug("Выдача пользователя по id из хранилища.");
+        if (countPerson() < id) {
             throw new ExistenceException("Пользователь с id " + id + " не найден.");
         }
+
         String sql = "select * from person where id = ?";
         return jdbcTemplate.query(sql, this::mapRowToAllPerson, id).get(0);
     }
@@ -60,16 +61,16 @@ public class DbPersonStorage implements PersonStorage {
         return person;
     }
 
-    private Long countPerson (){
-        Long countPerson = 0L;
+    private Long countPerson() {
+        long countPerson = 0L;
         String sqlCountPerson = "select COUNT(id) from person";
         SqlRowSet countPersonRow = jdbcTemplate.queryForRowSet(sqlCountPerson);
-        if (countPersonRow.next()){
+
+        if (countPersonRow.next()) {
             countPerson = countPersonRow.getLong("COUNT(id)");
         }
         return countPerson;
     }
-
 
 
     @Override
@@ -88,31 +89,49 @@ public class DbPersonStorage implements PersonStorage {
                 , person.getName()
                 , person.getBirthday()
                 , person.getId());
-        if (numberOfRowsAffected == 0){
+        if (numberOfRowsAffected == 0) {
             throw new ExistenceException("Пользователь с id " + person.getId() + " не найден.");
         }
-        if (person.getFriends()==null){
+        if (person.getFriends() == null) {
             person.setFriends(new HashSet<>());
         }
         return person;
     }
 
     @Override
-    public void addFriends(Long userId, Long friendId){
-        Set<Long> friendsId= new HashSet<>();
+    public void addFriends(Long userId, Long friendId) {
+        log.debug("Добавление друзей в хранилище.");
+        Set<Long> friendsId = new HashSet<>();
+        Set<Long> friendsByFriendId = new HashSet<>();
 
         String sqlFriendsId = "select friend_id from friendship where user_id = ?";
         SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(sqlFriendsId, userId);
-        while (friendsRows.next()){
+        while (friendsRows.next()) {
             friendsId.add(friendsRows.getLong("friend_id"));
         }
-        if (!friendsId.contains(friendId)){
+
+        if (!friendsId.contains(friendId)) {
             String sqlAddFriend = "insert into friendship(user_id, friend_id) values (?,?)";
             jdbcTemplate.update(sqlAddFriend, userId, friendId);
         }
+
+
+        String sqlFriedsByFriendId = "select user_id from friendship where friend_id = ?";
+        SqlRowSet friedsByFriendRows = jdbcTemplate.queryForRowSet(sqlFriendsId, friendId);
+        while (friedsByFriendRows.next()) {
+            friendsByFriendId.add(friendsRows.getLong("user_id"));
+        }
+
+        if (friendsByFriendId.contains(userId)) {
+            String sqlUpdateConfirmation = "update friendship set " +
+                    "confirmation=true" +
+                    "where user_id = ? AND friend_id = ?";
+            jdbcTemplate.update(sqlUpdateConfirmation, userId, friendId);
+            jdbcTemplate.update(sqlUpdateConfirmation, friendId, userId);
+        }
     }
 
-    public boolean deleteFriend (Long userId, Long friendId){
+    public boolean deleteFriend(Long userId, Long friendId) {
         String sqlDeleteFriend = "delete from friendship where user_id = ? and friend_id=?";
         return jdbcTemplate.update(sqlDeleteFriend, userId, friendId) > 0;
     }
@@ -125,20 +144,21 @@ public class DbPersonStorage implements PersonStorage {
 
     @Override
     public Map<Long, Person> getPerson() {
+        log.debug("Выдача всех друзей в хранилище с id.");
         Map<Long, Person> persons = new HashMap<>();
-        for (Person person: getAllPerson()){
+        for (Person person : getAllPerson()) {
             persons.put(person.getId(), person);
         }
         return persons;
     }
 
-    private HashSet<Person> getFriends(long id){
-
+    private HashSet<Person> getFriends(long id) {
+        log.debug("Выдача всех друзей в хранилище.");
         HashSet<Person> friends = new HashSet<>();
 
         String sqlFriends = "select friend_id from friendship where user_id = ?";
         SqlRowSet friendsRows = jdbcTemplate.queryForRowSet(sqlFriends, id);
-        while (friendsRows.next()){
+        while (friendsRows.next()) {
             Long idFriend = friendsRows.getLong("friend_id");
             friends.add(getPersonById(idFriend));
         }

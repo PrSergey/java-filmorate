@@ -91,7 +91,6 @@ public class PersonServiceImp implements PersonService {
                 mutualFriends.add(friends);
             }
         }
-
         return mutualFriends;
     }
 

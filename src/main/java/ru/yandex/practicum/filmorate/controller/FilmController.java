@@ -20,6 +20,7 @@ public class FilmController {
 
 
     private final FilmService filmsInMemory;
+
     @Autowired
     public FilmController(FilmService filmsInMemory) {
         this.filmsInMemory = filmsInMemory;
@@ -50,10 +51,9 @@ public class FilmController {
     }
 
 
-
     @PutMapping("/films/{id}/like/{userId}")
     public Long addLike(@PathVariable Long id, @PathVariable Long userId) {
-        if (id<0 || userId<0){
+        if (id < 0 || userId < 0) {
             throw new ExistenceException("Id не может быть отрицательным");
         }
         return filmsInMemory.addLike(id, userId);
@@ -61,7 +61,7 @@ public class FilmController {
 
     @DeleteMapping("/films/{id}/like/{userId}")
     public Long deleteLike(@PathVariable Long id, @PathVariable Long userId) {
-        if (id<0 || userId<0){
+        if (id < 0 || userId < 0) {
             throw new ExistenceException("Id не может быть отрицательным");
         }
         return filmsInMemory.deleteLike(id, userId);
@@ -97,5 +97,4 @@ public class FilmController {
         }
         return filmsInMemory.getMpaById(id);
     }
-
 }
