@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
@@ -168,7 +169,7 @@ public class FilmDbStorage implements FilmStorage {
         String description = rs.getString("description");
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
-        List<Genre> genres = genreService.getByFilmId(id);
+        Set<Genre> genres = genreService.getByFilmId(id);
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
                 rs.getString("mpa_name")

@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,7 +44,7 @@ public class GenreStorageTest {
 
     @Test
     void getAllExecuteItems() {
-        List<Genre> genres = genreStorage.getAll();
+        Set<Genre> genres = genreStorage.getAll();
         assertThat(genres).hasSize(6);
     }
 
@@ -57,7 +58,7 @@ public class GenreStorageTest {
                 .mpa(Mpa.builder().id(1L).build())
                 .build();
         Long filmId = filmStorage.add(film).getId();
-        List<Genre> testGenres = genreStorage.getAll().subList(0,5);
+        Set<Genre> testGenres = genreStorage.getAll();
         genreStorage.addAllToFilmId(filmId, testGenres);
         List<Genre> genres = genreStorage.getByFilmId(filmId);
         assertThat(genres).hasSize(5).containsAll(testGenres);

@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
 
+import javax.persistence.SecondaryTable;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,7 +18,7 @@ public class GenreController {
     private final GenreService genreService;
 
     @GetMapping("/genres")
-    public List<Genre> findAll() {
+    public Set<Genre> findAll() {
         return genreService.getAll();
     }
 
