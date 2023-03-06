@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -12,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.GenreService;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.Date;
@@ -163,12 +161,14 @@ public class FilmDbStorage implements FilmStorage {
                         "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
     }
+
     @Override
     public Set<Long> getAllLikes(Long id) {
         String sql = "SELECT user_id from likes_list where film_id = ?";
         List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
         return new HashSet<>(list);
     }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");

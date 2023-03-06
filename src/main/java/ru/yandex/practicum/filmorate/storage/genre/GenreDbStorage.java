@@ -11,7 +11,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -54,6 +53,7 @@ public class GenreDbStorage implements GenreStorage {
                         statement.setLong(1, distinctGenres.get(i).getId());
                         statement.setLong(2, filmId);
                     }
+
                     public int getBatchSize() {
                         return distinctGenres.size();
                     }

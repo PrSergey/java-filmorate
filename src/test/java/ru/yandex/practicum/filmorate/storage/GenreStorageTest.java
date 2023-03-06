@@ -57,7 +57,7 @@ public class GenreStorageTest {
                 .mpa(Mpa.builder().id(1L).build())
                 .build();
         Long filmId = filmStorage.add(film).getId();
-        List<Genre> testGenres = genreStorage.getAll().subList(0,5);
+        List<Genre> testGenres = genreStorage.getAll().subList(0, 5);
         genreStorage.addAllToFilmId(filmId, testGenres);
         List<Genre> genres = genreStorage.getByFilmId(filmId);
         assertThat(genres).hasSize(5).containsAll(testGenres);

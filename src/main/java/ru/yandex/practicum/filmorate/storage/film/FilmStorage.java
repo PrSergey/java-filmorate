@@ -13,7 +13,9 @@ public interface FilmStorage {
     Film getById(Long id) throws NotFoundException;
 
     Film add(Film film);
+
     Set<Long> getAllLikes(Long id);
+
     Film update(Film film);
 
     void delete(Film film);

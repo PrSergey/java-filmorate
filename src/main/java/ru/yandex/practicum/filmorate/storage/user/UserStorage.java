@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.user;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import javax.persistence.SecondaryTable;
 import java.util.List;
 import java.util.Set;
 

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -20,9 +19,10 @@ import java.util.Set;
 
 @Repository
 @RequiredArgsConstructor
-public class UserDbStorage implements UserStorage{
+public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public List<User> getAll() {
         String sqlQuery =
@@ -100,13 +100,13 @@ public class UserDbStorage implements UserStorage{
     }
 
     @Override
-    public void makeFriends(Long userId, Long friendId){
+    public void makeFriends(Long userId, Long friendId) {
         String sqlQuery = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
 
     @Override
-    public void removeFriends(Long userId, Long friendId){
+    public void removeFriends(Long userId, Long friendId) {
         String sqlQuery = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?;";
         jdbcTemplate.update(sqlQuery, userId, friendId);
     }
@@ -117,7 +117,7 @@ public class UserDbStorage implements UserStorage{
                 "SELECT fr.friend_id, " +
                         "FROM friendships AS fr " +
                         "WHERE fr.user_id = ?;";
-         List<Long> list = jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
+        List<Long> list = jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
         return new HashSet<>(list);
     }
 
