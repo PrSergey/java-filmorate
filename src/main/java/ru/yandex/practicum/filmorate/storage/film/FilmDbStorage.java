@@ -27,6 +27,7 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
     private final GenreStorage genreStorage;
 
     @Override
@@ -45,6 +46,9 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs));
         Map<Long, List<Genre>> genreMap = getGenresByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
         films.forEach(film -> film.setGenres(genreMap.get(film.getId())));
+        films.forEach(film -> {
+            if(film.getGenres() == null) film.setGenres(new ArrayList<>());
+        });
         return films;
     }
 
@@ -84,6 +88,9 @@ public class FilmDbStorage implements FilmStorage {
             statement.setLong(5, film.getMpa().getId());
             return statement;
         }, keyHolder);
+        if (film.getGenres() == null) {
+            film.setGenres(new ArrayList<>());
+        }
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return film;
     }
@@ -153,6 +160,9 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
         Map<Long, List<Genre>> genreMap = getGenresByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
         films.forEach(film -> film.setGenres(genreMap.get(film.getId())));
+        films.forEach(film -> {
+            if(film.getGenres() == null) film.setGenres(new ArrayList<>());
+        });
         return films;
     }
 
