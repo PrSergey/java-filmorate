@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
-@Transactional
 public class FilmDbStorageTest {
     @Autowired
     private FilmStorage filmStorage;
@@ -47,6 +46,8 @@ public class FilmDbStorageTest {
 
     @Test
     public void testGetById() throws NotFoundException {
+        filmStorage.add(Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
+                .duration(100).mpa(mpaStorage.getById(1L)).build());
         Long id = 1L;
         Film film = filmStorage.getById(id);
         assertNotNull(film);
@@ -146,6 +147,7 @@ public class FilmDbStorageTest {
     }
 
     @Test
+    @Transactional
     public void testGetTop() {
 
         Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
