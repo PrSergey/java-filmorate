@@ -36,7 +36,7 @@ public class FilmService {
     }
 
     public Film update(Film film) {
-        if (film.getGenres() != null || film.getGenres().isEmpty()) {
+        if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
         return filmStorage.update(film);
