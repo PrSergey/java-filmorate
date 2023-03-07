@@ -11,7 +11,6 @@ import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.GenreService;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -27,7 +26,6 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
     private final GenreStorage genreStorage;
 
     @Override
@@ -44,12 +42,7 @@ public class FilmDbStorage implements FilmStorage {
                         "JOIN mpa_ratings AS m" +
                         "    ON m.id = f.mpa_id;";
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs));
-        Map<Long, List<Genre>> genreMap = getGenresByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
-        films.forEach(film -> film.setGenres(genreMap.get(film.getId())));
-        films.forEach(film -> {
-            if(film.getGenres() == null) film.setGenres(new ArrayList<>());
-        });
-        return films;
+        return getFilms(films);
     }
 
     @Override
@@ -158,12 +151,7 @@ public class FilmDbStorage implements FilmStorage {
                         "ORDER BY r.rate DESC " +
                         "LIMIT ?;";
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
-        Map<Long, List<Genre>> genreMap = getGenresByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
-        films.forEach(film -> film.setGenres(genreMap.get(film.getId())));
-        films.forEach(film -> {
-            if(film.getGenres() == null) film.setGenres(new ArrayList<>());
-        });
-        return films;
+        return getFilms(films);
     }
 
     @Override
@@ -188,9 +176,16 @@ public class FilmDbStorage implements FilmStorage {
         return new Film(id, name, description, releaseDate, duration, genres, mpa, likes);
     }
 
+    private List<Film> getFilms(List<Film> films) {
+        Map<Long, List<Genre>> genreMap = getGenresByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
+        films.forEach(film -> film.setGenres(genreMap.get(film.getId())));
+        films.forEach(film -> {
+            if (film.getGenres() == null) film.setGenres(new ArrayList<>());
+        });
+        return films;
+    }
 
-
-    public Map<Long, List<Genre>> getGenresByFilmIds(List<Long> filmIds) {
+    private Map<Long, List<Genre>> getGenresByFilmIds(List<Long> filmIds) {
         String sqlQuery = "SELECT film_id, genre_id, name FROM films_genres JOIN genres ON genres.id = films_genres.genre_id WHERE film_id IN (:filmIds)";
         MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("filmIds", filmIds);
         return namedParameterJdbcTemplate.query(sqlQuery, parameters, rs -> {
