@@ -171,7 +171,7 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getLong("mpa_id"),
                 rs.getString("mpa_name")
         );
-        return Film.builder().id(id).name(name).description(description).releaseDate(releaseDate).duration(duration).genres(new ArrayList<>()).mpa(mpa).likes(likes).build();
+        return new Film(id, name, description, releaseDate, duration, new ArrayList<>(), mpa, likes);
     }
 
 
