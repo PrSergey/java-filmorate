@@ -26,9 +26,8 @@ public class FilmController {
 
     @PutMapping("/films")
     public Film updateFilm(@RequestBody @Valid Film film) {
-        filmService.update(film);
         log.info("Обновляем фильм {}", film);
-        return film;
+        return filmService.update(film);
     }
 
     @GetMapping("/films")
