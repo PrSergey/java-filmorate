@@ -80,7 +80,7 @@ public class FilmDbStorage implements FilmStorage {
             statement.setLong(5, film.getMpa().getId());
             return statement;
         }, keyHolder);
-
+        film.setGenres(new ArrayList<>());
         film.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return film;
     }
