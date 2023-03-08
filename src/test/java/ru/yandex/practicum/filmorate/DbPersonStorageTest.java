@@ -110,7 +110,7 @@ class DbPersonStorageTest extends PersonControllerTest {
 	public void getUserByCorrectId() {
 		Person personFirst = createUser();
 		personController.createPerson(personFirst);
-		Assertions.assertEquals(personFirst, personController.getPersonById(3L));
+		Assertions.assertEquals(personFirst, personController.getPersonById(1L));
 	}
 
 	@Override
