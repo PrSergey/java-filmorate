@@ -9,10 +9,10 @@ import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.FilmServiceImp;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImp;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -46,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.*;
                 .duration(100)
                 .mpa(new Mpa(1, "G"))
                 .genres(new HashSet<>())
-                .likes(new HashSet<>())
+                .likes(0L)
                 .build();
     }
 
@@ -174,11 +174,11 @@ import static org.junit.jupiter.api.Assertions.*;
         Film film = createFilm();
         filmController.createFilm(film);
         filmController.addLike(1L, 1L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 1);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 1);
         filmController.addLike(1L, 2L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 2);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 2);
         filmController.addLike(1L, 1L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 2);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 2);
     }
 
     @Test
@@ -186,11 +186,11 @@ import static org.junit.jupiter.api.Assertions.*;
         Film film = createFilm();
         filmController.createFilm(film);
         filmController.addLike(1L, 1L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 1);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 1);
         filmController.addLike(1L, 2L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 2);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 2);
         filmController.deleteLike(1L, 1L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 1);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 1);
     }
 
     @Test

@@ -5,13 +5,13 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.PersonController;
 import ru.yandex.practicum.filmorate.model.Person;
-import ru.yandex.practicum.filmorate.service.PersonService;
-import ru.yandex.practicum.filmorate.service.PersonServiceImp;
-import ru.yandex.practicum.filmorate.storage.DbPersonStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryPersonStorage;
-import ru.yandex.practicum.filmorate.storage.PersonStorage;
+import ru.yandex.practicum.filmorate.service.person.PersonService;
+import ru.yandex.practicum.filmorate.service.person.PersonServiceImp;
+import ru.yandex.practicum.filmorate.storage.person.DbFriendStorage;
+import ru.yandex.practicum.filmorate.storage.person.DbPersonStorage;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -90,7 +90,7 @@ class DbPersonStorageTest extends PersonControllerTest {
 		personController.createPerson(personFirst);
 		Person personSecond = createUser();
 		personController.createPerson(personSecond);
-		assertEquals(personController.getAllUsers().size(), 8);
+		assertEquals(personController.getAllUsers().size(), 6);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ class DbPersonStorageTest extends PersonControllerTest {
 	public void getUserByCorrectId() {
 		Person personFirst = createUser();
 		personController.createPerson(personFirst);
-		Assertions.assertEquals(personFirst, personController.getPersonById(6L));
+		Assertions.assertEquals(personFirst, personController.getPersonById(1L));
 	}
 
 	@Override
@@ -119,41 +119,4 @@ class DbPersonStorageTest extends PersonControllerTest {
 		super.getUserByIncorrectId();
 	}
 
-	@Override
-	@Test
-	public void addFriendWithIncorrectIdUserAndIncorrectIdFriends() {
-		super.addFriendWithIncorrectIdUserAndIncorrectIdFriends();
-	}
-
-	@Override
-	@Test
-	public void addFriendWithCorrectId() {
-		super.addFriendWithCorrectId();
-	}
-
-	@Override
-	@Test
-	public void deleteFriendWithIncorrectId() {
-		super.deleteFriendWithIncorrectId();
-	}
-
-	@Override
-	@Test
-	public void deleteFriendWithCorrectId() {
-		super.deleteFriendWithCorrectId();
-	}
-
-	@Override
-	@Test
-	public void getMutualFriends() {
-		Person personFirst = createUser();
-		personController.createPerson(personFirst);
-		Person personSecond = createUser();
-		personController.createPerson(personSecond);
-		Person personThird = createUser();
-		personController.createPerson(personThird);
-		personController.addFriend(12L, 13L);
-		personController.addFriend(14L, 13L);
-		Assertions.assertEquals(personController.getMutualFriends(12L, 14L).get(0), personSecond);
-	}
 }

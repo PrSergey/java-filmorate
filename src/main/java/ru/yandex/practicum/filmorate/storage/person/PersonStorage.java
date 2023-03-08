@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.person;
 
 import ru.yandex.practicum.filmorate.model.Person;
 
@@ -9,8 +9,6 @@ import java.util.Map;
 public interface PersonStorage {
     List<Person> getAllPerson();
     Person getPersonById(Long id);
-    void addFriends(Long user_id, Long friend_id);
-    boolean deleteFriend (Long user_id, Long friend_id);
 
     Person createPerson(Person person);
 

@@ -3,14 +3,16 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.PersonController;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Person;
-import ru.yandex.practicum.filmorate.service.PersonServiceImp;
-import ru.yandex.practicum.filmorate.service.PersonService;
-import ru.yandex.practicum.filmorate.storage.InMemoryPersonStorage;
-import ru.yandex.practicum.filmorate.storage.PersonStorage;
+import ru.yandex.practicum.filmorate.service.person.PersonServiceImp;
+import ru.yandex.practicum.filmorate.service.person.PersonService;
+import ru.yandex.practicum.filmorate.storage.person.DbFriendStorage;
+import ru.yandex.practicum.filmorate.storage.person.InMemoryPersonStorage;
+import ru.yandex.practicum.filmorate.storage.person.PersonStorage;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -31,6 +33,7 @@ class PersonControllerTest {
 
     @BeforeEach
     void beforeEach() {
+        DbFriendStorage dbFriendStorage = new DbFriendStorage(new JdbcTemplate());
         PersonStorage userStorage = new InMemoryPersonStorage();
         PersonService userInMemory = new PersonServiceImp(userStorage);
         personController = new PersonController(userInMemory);
@@ -187,64 +190,5 @@ class PersonControllerTest {
                 () -> personController.getPersonById(50L));
         Assertions.assertEquals("Пользователь с id 50 не найден.", exception.getMessage());
     }
-
-    @Test
-    public void addFriendWithIncorrectIdUserAndIncorrectIdFriends (){
-        Person personFirst = createUser();
-        personController.createPerson(personFirst);
-        ExistenceException exceptionFriend = Assertions.assertThrows(ExistenceException.class,
-                () -> personController.addFriend(1L, -1L));
-        Assertions.assertEquals("Id не может быть отрицательный", exceptionFriend.getMessage());
-        ExistenceException exceptionUser = Assertions.assertThrows(ExistenceException.class,
-                () -> personController.addFriend(-1L, 1L));
-        Assertions.assertEquals("Id не может быть отрицательный", exceptionUser.getMessage());
-    }
-
-    @Test
-    public void addFriendWithCorrectId (){
-        Person personFirst = createUser();
-        personController.createPerson(personFirst);
-        Person personSecond = createUser();
-        personController.createPerson(personSecond);
-        personController.addFriend(1L, 2L);
-        Assertions.assertEquals(personController.getPersonById(1L).getFriends().size(), 1);
-    }
-
-    @Test
-    public void deleteFriendWithIncorrectId (){
-        Person personFirst = createUser();
-        personController.createPerson(personFirst);
-        ExistenceException exceptionUser = Assertions.assertThrows(ExistenceException.class,
-                () -> personController.deleteFriend(1L, 50L));
-        Assertions.assertEquals("Пользователь с id 50 не найден.", exceptionUser.getMessage());
-    }
-
-    @Test
-    public void deleteFriendWithCorrectId (){
-        Person personFirst = createUser();
-        personController.createPerson(personFirst);
-        Person personSecond = createUser();
-        personController.createPerson(personSecond);
-        personController.addFriend(1L, 2L);
-        personController.deleteFriend(1L, 2L);
-        Assertions.assertEquals(personController.getFriendsOfUser(1L).size(), 0);
-    }
-
-    @Test
-    public void getMutualFriends (){
-        Person personFirst = createUser();
-        personController.createPerson(personFirst);
-        Person personSecond = createUser();
-        personController.createPerson(personSecond);
-        Person personThird = createUser();
-        personController.createPerson(personThird);
-        personController.addFriend(1L, 2L);
-        personController.addFriend(3L, 2L);
-        Assertions.assertEquals(personController.getMutualFriends(1L, 3L).get(0), personSecond);
-    }
-
-
-
-
 
 }

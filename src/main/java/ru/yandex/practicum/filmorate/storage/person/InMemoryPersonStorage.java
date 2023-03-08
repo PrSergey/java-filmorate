@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.person;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,6 @@ import java.util.*;
 @Component
 @Slf4j
 public class InMemoryPersonStorage implements PersonStorage {
-
     private int id = 1;
     private Map<Long, Person> users = new HashMap<>();
 
@@ -22,12 +21,11 @@ public class InMemoryPersonStorage implements PersonStorage {
         return new ArrayList<>(users.values());
     }
 
-    @Override
     public void addFriends(Long user_id, Long friend_id) {
         users.get(user_id).getFriends().add(getPersonById(friend_id));
     }
 
-    @Override
+
     public boolean deleteFriend(Long user_id, Long friend_id) {
         return getPersonById(user_id).getFriends().remove(getPersonById(friend_id));
     }

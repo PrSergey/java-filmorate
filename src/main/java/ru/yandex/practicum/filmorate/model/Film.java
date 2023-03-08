@@ -28,7 +28,7 @@ public class Film {
     @Positive
     private int duration;
     private HashSet<Genre> genres;
-    private HashSet<Long> likes;
+    private Long likes;
 
 
 }

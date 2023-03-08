@@ -7,18 +7,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.controller.PersonController;
 import ru.yandex.practicum.filmorate.exception.ExistenceException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.Person;
-import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.FilmServiceImp;
-import ru.yandex.practicum.filmorate.service.PersonService;
-import ru.yandex.practicum.filmorate.service.PersonServiceImp;
-import ru.yandex.practicum.filmorate.storage.DbFilmStorage;
-import ru.yandex.practicum.filmorate.storage.DbPersonStorage;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImp;
+import ru.yandex.practicum.filmorate.service.person.PersonService;
+import ru.yandex.practicum.filmorate.service.person.PersonServiceImp;
+import ru.yandex.practicum.filmorate.storage.film.DbFilmStorage;
+import ru.yandex.practicum.filmorate.storage.person.DbFriendStorage;
+import ru.yandex.practicum.filmorate.storage.person.DbPersonStorage;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -116,7 +118,7 @@ public class DbFilmStorageTest extends FilmControllerTest {
                 .duration(1000)
                 .mpa(new Mpa(2,"new"))
                 .genres(new HashSet<>())
-                .likes(new HashSet<>())
+                .likes(0L)
                 .build();
         assertEquals(filmController.updateFilm(filmUpdate), filmController.getFilmById(1L));
     }
@@ -134,7 +136,7 @@ public class DbFilmStorageTest extends FilmControllerTest {
                 .duration(100)
                 .mpa(new Mpa(2,"new"))
                 .genres(new HashSet<>())
-                .likes(new HashSet<>())
+                .likes(0L)
                 .build();
         ExistenceException exception = Assertions.assertThrows(ExistenceException.class,
                 () -> filmController.updateFilm(filmUpdate));
@@ -169,7 +171,14 @@ public class DbFilmStorageTest extends FilmControllerTest {
     @Test
     @Override
     public void addLikeToFilm() {
-        super.addLikeToFilm();
+        Film film = createFilm();
+        filmController.createFilm(film);
+        filmController.addLike(1L, 1L);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 1);
+        filmController.addLike(1L, 5L);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 2);
+        filmController.addLike(1L, 5L);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 2);
     }
 
     @Test
@@ -178,11 +187,9 @@ public class DbFilmStorageTest extends FilmControllerTest {
         Film film = createFilm();
         filmController.createFilm(film);
         filmController.addLike(1L, 1L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 3);
-        filmController.addLike(1L, 2L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 3);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 3);
         filmController.deleteLike(1L, 1L);
-        Assertions.assertEquals(filmController.getFilmById(1L).getLikes().size(), 2);
+        Assertions.assertEquals(filmController.getFilmById(1L).getLikes(), 2);
     }
 
     @Test
@@ -202,7 +209,6 @@ public class DbFilmStorageTest extends FilmControllerTest {
         filmController.addLike(1L, 2L);
         filmController.addLike(1L, 5L);
         Assertions.assertEquals(filmController.getPopularFilms(1L).size(), 1);
-        Assertions.assertEquals(filmController.getPopularFilms(1L).get(0).getLikes().size(), 3);
+        Assertions.assertEquals(filmController.getPopularFilms(1L).get(0).getLikes(), 3);
     }
-
 }
