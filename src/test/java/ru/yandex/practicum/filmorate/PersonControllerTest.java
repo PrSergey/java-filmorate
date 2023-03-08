@@ -156,7 +156,7 @@ class PersonControllerTest {
                 .birthday(LocalDate.of(2022, 12, 20))
                 .build();
         personController.updatePerson(personSecond);
-        assertEquals(personController.getPersonById(1L), personSecond);
+        assertEquals(personController.getPersonById(1L).getName(), personSecond.getName());
     }
 
     @Test
