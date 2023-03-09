@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class FilmServiceImp implements FilmService {
 
-    FilmStorage filmStorage;
+    private final FilmStorage filmStorage;
 
     @Autowired
     public FilmServiceImp(@Qualifier("dbFilmStorage") FilmStorage filmStorage) {

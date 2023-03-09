@@ -17,7 +17,7 @@ import java.util.Set;
 @Service
 @Slf4j
 public class PersonServiceImp implements PersonService {
-    PersonStorage personStorage;
+    private final PersonStorage personStorage;
 
     @Autowired
     public PersonServiceImp(@Qualifier("dbPersonStorage")PersonStorage personStorage) {

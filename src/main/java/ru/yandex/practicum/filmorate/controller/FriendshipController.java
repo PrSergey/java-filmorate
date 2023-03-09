@@ -13,7 +13,7 @@ import java.util.List;
 @Slf4j
 public class FriendshipController {
 
-    FriendService friendService;
+    private final FriendService friendService;
 
     @Autowired
     public FriendshipController(FriendService friendService) {

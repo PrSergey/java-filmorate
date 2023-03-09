@@ -19,8 +19,8 @@ import java.util.Set;
 @Slf4j
 public class FriendService {
 
-    PersonStorage personStorage;
-    DbFriendStorage dbFriendStorage;
+    private final PersonStorage personStorage;
+    private final DbFriendStorage dbFriendStorage;
 
 
     @Autowired

@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS film (
     description varchar(200),
     release_date timestamp,
     mpa TINYINT REFERENCES mpa(mpa_id),
-    duration integer
+    duration integer,
+    likes BIGINT
     );
 
 CREATE TABLE IF NOT EXISTS genre (

@@ -36,9 +36,10 @@ public class DbFilmStorage implements FilmStorage {
         log.debug("Выдача всех фильмов из хранилища.");
         List<Film> films;
 
-        String sql = " select * " +
-                "from (select * from film left join mpa ON film.mpa=mpa.mpa_id) as f " +
-                "left join (select film_id, COUNT(user_id) as c from likes group by film_id) as l ON f.film_id=l.film_id";
+        String sql = "select *" +
+                "from film as f " +
+                "left join mpa ON f.mpa=mpa.mpa_id " +
+                "group by f.film_id ";
         films = jdbcTemplate.query(sql, this::mapRowToAllFilms);
 
         return genreStorage.setGenreToFilms(films);
@@ -49,11 +50,11 @@ public class DbFilmStorage implements FilmStorage {
         log.debug("Выдача фильма по id из хранилища.");
         List<Film> films;
 
-        String sql = "select * from (select * from film " +
-                "left join mpa ON film.mpa=mpa.mpa_id) as f " +
-                "left join (select film_id, COUNT(user_id) as c " +
-                "from likes group by film_id) as l ON f.film_id=l.film_id " +
-                "where f.film_id = ?";
+        String sql = "select *" +
+                "from film as f " +
+                "left join mpa ON f.mpa=mpa.mpa_id " +
+                "where f.film_id = ?" +
+                "group by f.film_id ";
         films = jdbcTemplate.query(sql, this::mapRowToAllFilms, id);
 
         if (films.isEmpty()) {
@@ -136,6 +137,7 @@ public class DbFilmStorage implements FilmStorage {
     @Override
     public void addLikeByFilm(Long filmId, Long userId) {
         log.debug("Добавление лайка в хранилище.");
+        long likesBeforeAdd=0;
 
         String sqlCheckLikeFromUser = "select * from likes where film_id = ? and user_id = ?";
         SqlRowSet checkLikeRow = jdbcTemplate.queryForRowSet(sqlCheckLikeFromUser, filmId, userId);
@@ -145,13 +147,33 @@ public class DbFilmStorage implements FilmStorage {
 
         String sqlAddLike = "insert into likes (film_id, user_id) values (?,?)";
         jdbcTemplate.update(sqlAddLike, filmId, userId);
+
+        String sqlAddLikesInFilm = "update film set likes = ? where film_id = ?";
+        jdbcTemplate.update(sqlAddLikesInFilm, getLikeByFilm(filmId), filmId);
     }
 
     @Override
     public boolean deleteLikeByFilm(Long filmId, Long userId) {
         log.debug("Удаление лайка в хранилище.");
         String sqlDeleteLike = "delete from likes where film_id = ? and user_id = ?";
-        return jdbcTemplate.update(sqlDeleteLike, filmId, userId) >= 1;
+        if (jdbcTemplate.update(sqlDeleteLike, filmId, userId) == 0){
+            return false;
+        }
+
+        String sqlDeleteLikesInFilm = "update film set likes = ? where film_id = ?";
+        jdbcTemplate.update(sqlDeleteLikesInFilm, getLikeByFilm(filmId), filmId);
+        return true;
+    }
+
+    private long getLikeByFilm (long filmId){
+        long countLikesBeforeAdd = 0;
+
+        String sqlCountLikesBeforeAdd = "select count(user_id) from likes where film_id = ?";
+        SqlRowSet countLikesBeforeAddRow = jdbcTemplate.queryForRowSet(sqlCountLikesBeforeAdd, filmId);
+        if (countLikesBeforeAddRow.next()) {
+            countLikesBeforeAdd = countLikesBeforeAddRow.getLong("count(user_id)");
+        }
+        return countLikesBeforeAdd;
     }
 
     @Override
@@ -159,10 +181,10 @@ public class DbFilmStorage implements FilmStorage {
         log.debug("Выдача рейтинга фильмл");
         List<Film> topFilm;
 
-        String sqlTopLike = "select * " +
-                "from (select * from film left join mpa ON film.mpa=mpa.mpa_id) as f " +
-                "left join (select film_id, COUNT(user_id) as c from likes group by film_id) as l ON f.film_id=l.film_id " +
-                "order by c Desc limit ?";
+        String sqlTopLike = "select *" +
+                "from film " +
+                "order by likes DESC " +
+                "limit ?";
         topFilm = jdbcTemplate.query(sqlTopLike, this::mapRowToAllFilms, countFilm);
 
         return topFilm;
@@ -188,7 +210,7 @@ public class DbFilmStorage implements FilmStorage {
         int mpa = rs.getInt("mpa"); //no
         LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
         int duration = rs.getInt("duration");
-        long likes = rs.getLong("c");
+        long likes = rs.getLong("likes");
         HashSet<Genre> genres = new HashSet<>();
 
         return new Film(id, name, description, new Mpa(mpa, mpaStorage.getNameMpa(mpa)), releaseDate, duration,

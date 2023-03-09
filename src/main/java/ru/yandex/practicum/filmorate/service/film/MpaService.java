@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class MpaService {
-    MpaStorage mpaStorage;
+    private final MpaStorage mpaStorage;
 
     public MpaService(MpaStorage mpaStorage) {
         this.mpaStorage = mpaStorage;
