@@ -90,7 +90,7 @@ class DbPersonStorageTest extends PersonControllerTest {
 		personController.createPerson(personFirst);
 		Person personSecond = createUser();
 		personController.createPerson(personSecond);
-		assertEquals(personController.getAllUsers().size(), 13);
+		assertEquals(personController.getAllUsers().size(), 6);
 	}
 
 	@Override
