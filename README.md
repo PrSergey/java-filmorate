@@ -6,13 +6,13 @@ Template repository for Filmorate project.
 ### Получение всех пользоватей:
 ```
 SELECT * 
-FROM user
+FROM person
 ```
 ### Получение пользователя по id:
 ```
 SELECT *
-FROM user
-WHERE user_id=1
+FROM person
+WHERE person_id=1
 ```
 ### Получение друзей пользователя:
 ```
@@ -34,12 +34,12 @@ AND confirmation IS TRUE;
 ### Получение всех фильмов:
 ```
 SELECT * 
-FROM movie;
+FROM film;
 ```
 ### Получение фильмов по id:
 ```
 SELECT * 
-FROM movie
+FROM film
 WHERE film_id=1;
 ```
 ### Получение 10 популярных фильмов:
