@@ -15,14 +15,20 @@ import java.util.HashSet;
 @AllArgsConstructor
 @Builder
 public class Film {
+    public Film() {
+    }
     private long id;
     @NotBlank
     @NotEmpty
     private String name;
     @Size(max = 200)
     private String description;
+    private Mpa mpa;
     private LocalDate releaseDate;
     @Positive
     private int duration;
-    private HashSet<Long> likes;
+    private HashSet<Genre> genres;
+    private Long likes;
+
+
 }
