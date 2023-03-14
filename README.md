@@ -10,7 +10,7 @@ FROM person
 ```
 ### Получение пользователя по id:
 ```
-SELECT *
+SELEC *
 FROM person
 WHERE person_id=1
 ```
