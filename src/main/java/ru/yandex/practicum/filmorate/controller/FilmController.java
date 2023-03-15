@@ -58,4 +58,9 @@ public class FilmController {
         filmService.removeLike(id, userId);
     }
 
+    @DeleteMapping("/films/{filmId}")
+    public void deleteFilmById(@PathVariable Long filmId) {
+
+    }
+
 }
