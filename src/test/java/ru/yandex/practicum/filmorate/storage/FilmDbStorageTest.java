@@ -146,35 +146,39 @@ public class FilmDbStorageTest {
         assertFalse(filmStorage.hasLikeFromUser(film.getId(), user.getId()));
     }
 
-//     @Test
-//     @Transactional
-//     public void testGetTop() {
+    @Test
+    @Transactional
+    public void testGetTop() {
 
-//         Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
-//                 .duration(100).description("123").mpa(mpaStorage.getById(1L)).build();
-//         filmService.add(film1);
+        Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("123").mpa(mpaStorage.getById(1L)).build();
+        filmService.add(film1);
 
-//         Film film2 = Film.builder().name("test2").releaseDate(Date.valueOf("2000-10-10"))
-//                 .duration(100).description("222").mpa(mpaStorage.getById(2L)).build();
-//         filmService.add(film2);
+        Film film2 = Film.builder().name("test2").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("222").mpa(mpaStorage.getById(2L)).build();
+        filmService.add(film2);
 
-//         Film film3 = Film.builder().name("test3").releaseDate(Date.valueOf("2000-10-10"))
-//                 .duration(100).description("321").mpa(mpaStorage.getById(3L)).build();
-//         filmService.add(film3);
+        Film film3 = Film.builder().name("test3").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("321").mpa(mpaStorage.getById(3L)).build();
+        filmService.add(film3);
 
-//         User user1 = User.builder().email("test11@a.re").login("test11").name("test11").build();
-//         userStorage.add(user1);
+        User user1 = User.builder().email("test11@a.re").login("test11").name("test11").build();
+        userStorage.add(user1);
 
-//         User user2 = User.builder().email("test12@a.re").login("test12").name("test12").build();
-//         userStorage.add(user2);
+        User user2 = User.builder().email("test12@a.re").login("test12").name("test12").build();
+        userStorage.add(user2);
 
-//         filmService.addLike(film1.getId(), user1.getId());
-//         filmService.addLike(film1.getId(), user2.getId());
-//         filmService.addLike(film2.getId(), user1.getId());
+        filmService.addLike(film1.getId(), user1.getId());
+        filmService.addLike(film1.getId(), user2.getId());
+        filmService.addLike(film2.getId(), user1.getId());
 
-//         List<Film> topFilms = filmService.getTop(2);
-//         assertEquals(2, topFilms.size());
-//         assertEquals(film1.getId(), topFilms.get(0).getId());
-//         assertEquals(film2.getId(), topFilms.get(1).getId());
-//     }
+        List<Film> topFilms = filmService.getTop(2);
+
+        film1 = filmService.getById(film1.getId());
+        film2 = filmService.getById(film2.getId());
+
+        assertEquals(2, topFilms.size());
+        assertEquals(film1.getId(), topFilms.get(0).getId());
+        assertEquals(film2.getId(), topFilms.get(1).getId());
+    }
 }
