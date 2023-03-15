@@ -34,7 +34,7 @@ public class UserDbStorageTest {
         user1 = userStorage.add(user1);
         user2 = userStorage.add(user2);
         user3 = userStorage.add(user3);
-
+        System.out.println(userStorage.getAll().size());
         List<User> allUsers = userStorage.getAll();
 
         assertThat(allUsers)
