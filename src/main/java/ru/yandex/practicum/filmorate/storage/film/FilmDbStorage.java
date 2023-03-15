@@ -112,6 +112,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void deleteFilmById(Long filmId) {
+
+    }
+
+    @Override
     public void addLike(Long id, Long userId) {
         String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, id);
