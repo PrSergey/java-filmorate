@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -120,7 +121,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void deleteFilmById(Long filmId) {
-
+        try {
+            getById(filmId);
+            String sqlQuery = "DELETE FROM films WHERE id = ?;";
+            jdbcTemplate.update(sqlQuery, filmId);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Фильм с id=" + filmId + " не существует");
+        }
     }
 
     @Override

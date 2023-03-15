@@ -55,16 +55,25 @@ public class UserService {
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
-        List<User> friends = new ArrayList<>();
-        Set<Long> friendsIds = userStorage.getUserFriendsById(id);
-        if (friendsIds == null) {
+        try {
+            getById(id);
+            List<User> friends = new ArrayList<>();
+            Set<Long> friendsIds = userStorage.getUserFriendsById(id);
+            if (friendsIds == null) {
+                return friends;
+            }
+            for (Long friendId : friendsIds) {
+                User friend = userStorage.getById(friendId);
+                friends.add(friend);
+            }
             return friends;
+        } catch (NotFoundException e) {
+            throw new NotFoundException("Пользователь с id=" + id + " не существует");
         }
-        for (Long friendId : friendsIds) {
-            User friend = userStorage.getById(friendId);
-            friends.add(friend);
-        }
-        return friends;
+    }
+
+    public void deleteUserById(Long userId) {
+        userStorage.deleteUserById(userId);
     }
 
     private void checkUserById(Long id, Long friendId) {
