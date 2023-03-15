@@ -27,22 +27,6 @@ public class UserDbStorageTest {
     private UserStorage userStorage;
 
     @Test
-    void getAllTest() {
-        User user1 = new User(null, "email1@example.com", "user1", "User 1", Date.valueOf("1990-01-01"), new HashSet<>());
-        User user2 = new User(null, "email2@example.com", "user2", "User 2", Date.valueOf("1995-01-01"), new HashSet<>());
-        User user3 = new User(null, "email3@example.com", "user3", "User 3", Date.valueOf("2000-01-01"), new HashSet<>());
-        user1 = userStorage.add(user1);
-        user2 = userStorage.add(user2);
-        user3 = userStorage.add(user3);
-        List<User> allUsers = userStorage.getAll();
-
-        assertThat(allUsers)
-                .hasSize(3)
-                .extracting(User::getId)
-                .contains(user1.getId(), user2.getId(), user3.getId());
-    }
-
-    @Test
     void getByIdUserTest() {
         User user = new User(null, "email@example.com", "user", "User", Date.valueOf("1990-01-01"), new HashSet<>());
         user = userStorage.add(user);
@@ -114,6 +98,22 @@ public class UserDbStorageTest {
         userStorage.removeFriends(user1.getId(), user2.getId());
         Set<Long> friends = userStorage.getUserFriendsById(user1.getId());
         assertFalse(friends.contains(user2.getId()));
+    }
+
+    @Test
+    void getAllTest() {
+        User user1 = new User(null, "email1@example.com", "user1", "User 1", Date.valueOf("1990-01-01"), new HashSet<>());
+        User user2 = new User(null, "email2@example.com", "user2", "User 2", Date.valueOf("1995-01-01"), new HashSet<>());
+        User user3 = new User(null, "email3@example.com", "user3", "User 3", Date.valueOf("2000-01-01"), new HashSet<>());
+        user1 = userStorage.add(user1);
+        user2 = userStorage.add(user2);
+        user3 = userStorage.add(user3);
+        List<User> allUsers = userStorage.getAll();
+
+        assertThat(allUsers)
+                .hasSize(3)
+                .extracting(User::getId)
+                .contains(user1.getId(), user2.getId(), user3.getId());
     }
 
 }
