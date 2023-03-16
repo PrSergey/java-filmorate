@@ -7,18 +7,24 @@ import ru.yandex.practicum.filmorate.constant.EventType;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventUser {
 
-    private long id;
+    private long eventId;
     private long userId;
     private long entityId;
+
     private EventType eventType;
-    private EventOperation eventOperation;
+    private EventOperation operation;
     private Timestamp timeStamp;
 
+    public EventUser(long userId, long entityId, EventType eventType, EventOperation operation) {
+        this.userId = userId;
+        this.entityId = entityId;
+        this.eventType = eventType;
+        this.operation = operation;
+    }
 }

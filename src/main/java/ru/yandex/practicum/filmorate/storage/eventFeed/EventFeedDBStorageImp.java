@@ -9,15 +9,11 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
 import ru.yandex.practicum.filmorate.constant.EventType;
 import ru.yandex.practicum.filmorate.model.EventUser;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,11 +39,11 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
             statement.setLong(1, event.getUserId());
             statement.setLong(2, event.getEntityId());
             statement.setString(3, event.getEventType().toString());
-            statement.setString(4, event.getEventOperation().toString());
+            statement.setString(4, event.getOperation().toString());
             statement.setTimestamp(5, event.getTimeStamp());
             return statement;
         }, keyHolder);
-        event.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        event.setEventId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return event;
     }
 
