@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -17,6 +18,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -157,11 +159,17 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year) {
         List<Film> films = getTop(count);
-        System.out.println(films);
-        return films.stream()
-                .filter(f -> f.getGenres().stream()
-                        .anyMatch(g -> Objects.equals(g.getId(), genreId)))
-                .collect(Collectors.toList());
+        List<Film> filmsFiltered;
+        if (genreId != 0 && year != 0) {
+            filmsFiltered = filmFilteredWithGenre(films, genreId);
+            return filmFilteredWithYear(filmsFiltered, year);
+        } else if (year != 0) {
+            return filmFilteredWithYear(films, year);
+        } else if (genreId != 0) {
+            return filmFilteredWithGenre(films, genreId);
+        } else {
+            return films;
+        }
     }
 
     @Override
@@ -211,8 +219,15 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
-    private Genre findGenreById(List<Genre> genres, Long genreId) {
-        return genres.stream().filter(g -> Objects.equals(g.getId(), genreId))
-                .findFirst().orElse(null);
+    private List<Film> filmFilteredWithGenre(List<Film> films, Long genreId) {
+        return films.stream()
+                .filter(f -> f.getGenres().stream()
+                        .anyMatch(g -> Objects.equals(g.getId(), genreId)))
+                .collect(Collectors.toList());
+    }
+
+    private List<Film> filmFilteredWithYear(List<Film> filmsFiltered, Integer year) {
+        return filmsFiltered.stream().filter(film -> year == film.getReleaseDate().getYear())
+                .collect(Collectors.toList());
     }
 }
