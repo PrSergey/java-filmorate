@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -75,6 +76,22 @@ public class UserDbStorageTest {
         assertThat(addedUser.getId())
                 .isNotNull()
                 .isPositive();
+    }
+
+    @Test
+    void testDeleteUserById() {
+        User user = new User(null, "email@example.com", "user", "User", Date.valueOf("1990-01-01"), new HashSet<>());
+
+        User addedUser = userStorage.add(user);
+        Long id = addedUser.getId();
+        userStorage.deleteUserById(id);
+        try {
+            userStorage.getById(id);
+            Assertions.fail("Пользователь не удален");
+        } catch (NotFoundException e) {
+            Assertions.assertEquals(e.getMessage(), "Пользователь с id=" + id + " не существует");
+        }
+
     }
 
     @Test
