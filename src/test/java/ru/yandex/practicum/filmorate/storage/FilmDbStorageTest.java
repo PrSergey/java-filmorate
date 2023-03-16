@@ -172,6 +172,9 @@ public class FilmDbStorageTest {
         filmService.addLike(film1.getId(), user2.getId());
         filmService.addLike(film2.getId(), user1.getId());
 
+        film1 = filmService.getById(film1.getId());
+        film2 = filmService.getById(film2.getId());
+
         List<Film> topFilms = filmService.getTop(2);
         assertEquals(2, topFilms.size());
         assertEquals(film1.getId(), topFilms.get(0).getId());

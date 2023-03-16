@@ -57,5 +57,9 @@ public class FilmService {
     public List<Film> getTop(Integer count) {
         return filmStorage.getTop(count);
     }
+
+    public List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year) {
+        return filmStorage.getPopularWithGenreAndYear(count, genreId, year);
+    }
 }
 

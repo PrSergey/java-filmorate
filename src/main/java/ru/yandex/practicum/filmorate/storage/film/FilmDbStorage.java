@@ -155,6 +155,16 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year) {
+        List<Film> films = getTop(count);
+        System.out.println(films);
+        return films.stream()
+                .filter(f -> f.getGenres().stream()
+                        .anyMatch(g -> Objects.equals(g.getId(), genreId)))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Set<Long> getAllLikes(Long id) {
         String sql = "SELECT user_id from likes_list where film_id = ?";
         List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
@@ -199,5 +209,10 @@ public class FilmDbStorage implements FilmStorage {
             }
             return result;
         });
+    }
+
+    private Genre findGenreById(List<Genre> genres, Long genreId) {
+        return genres.stream().filter(g -> Objects.equals(g.getId(), genreId))
+                .findFirst().orElse(null);
     }
 }
