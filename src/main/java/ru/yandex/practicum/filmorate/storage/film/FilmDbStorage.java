@@ -6,11 +6,17 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
+import ru.yandex.practicum.filmorate.constant.EventType;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -27,6 +33,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final GenreStorage genreStorage;
+    private final EventFeedDBStorage eventFeedDBStorage;
 
     @Override
     public List<Film> getAll() {
@@ -115,11 +122,15 @@ public class FilmDbStorage implements FilmStorage {
     public void addLike(Long id, Long userId) {
         String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, id);
+        EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.ADD);
+        eventFeedDBStorage.setEventFeed(eventUser);
     }
 
     @Override
     public void removeLike(Long id, Long userId) {
         String sqlQuery = "DELETE FROM likes_list WHERE film_id = ? AND user_id = ?;";
+        EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.REMOVE);
+        eventFeedDBStorage.setEventFeed(eventUser);
         jdbcTemplate.update(sqlQuery, id, userId);
     }
 
@@ -135,7 +146,8 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery =
                 "SELECT f.id, " +
                         "f.name, " +
-                        "f.description, " +
+                        "f." +
+                        "description, " +
                         "f.release_date, " +
                         "f.duration, " +
                         "f.mpa_id, " +
