@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FilmorateApplication {
 
     public static void main(String[] args) {
-        System.out.printf("Тест");
         SpringApplication.run(FilmorateApplication.class, args);
     }
 
