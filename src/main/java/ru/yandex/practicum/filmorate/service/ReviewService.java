@@ -15,13 +15,13 @@ import java.util.List;
 public class ReviewService {
     private final ReviewStorage reviewStorage;
 
-    public List<Review> getAll(Long filmId) {
+    public List<Review> getAll(Long filmId, Integer count) {
         log.info("Запрос на получения всех отзывов");
-        return reviewStorage.getAll(filmId);
+        return reviewStorage.getAll(filmId, count);
     }
 
     public Review getById(Long reviewId) {
-        log.info("Запрос на получение отзыва с id {}", reviewId);
+        log.info("Запрос на получение отзыва с id = {}", reviewId);
         return reviewStorage.getById(reviewId);
     }
 
@@ -58,13 +58,12 @@ public class ReviewService {
     }
 
     public void validateReview(Review review) {
-        if (review.getFilmId() == null) {
+        if (review.getFilmId() == null || review.getFilmId() < 0) {
             log.error("Попытка добавить отзыв к фильму с неправильным id.");
             throw new NotFoundException("Фильм с таким id не был найден.");
-        } else if (review.getUserId() == null) {
+        } else if (review.getUserId() == null || review.getUserId() < 0) {
             log.error("Попытка добавить отзыв от пользователя с несуществующим id.");
             throw new NotFoundException("Пользователь с таким id не был найден.");
         }
     }
-
 }
