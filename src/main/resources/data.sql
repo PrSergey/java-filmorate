@@ -1,3 +1,11 @@
+DELETE FROM likes_list;
+DELETE FROM films_genres;
+DELETE FROM genres;
+DELETE FROM reviews;
+DELETE FROM films;
+DELETE FROM friendships;
+DELETE FROM users;
+
 MERGE INTO mpa_ratings (id, name)
     VALUES (1, 'G'),
            (2, 'PG'),
