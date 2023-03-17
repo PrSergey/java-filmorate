@@ -15,7 +15,7 @@ public class CheckValidDate implements ConstraintValidator<CustomValidDate, Date
     @Override
     public boolean isValid(Date localDate, ConstraintValidatorContext constraintValidatorContext) {
         if (localDate != null) {
-            return localDate.toLocalDate().isAfter(LocalDate.of(1895, 12, 29));
+            return localDate.toLocalDate().isAfter(LocalDate.of(1895, 12, 28));
         }
         return false;
     }
