@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,7 +30,8 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
     @Override
     public EventUser setEventFeed(EventUser event) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        Timestamp timeStamp = new Timestamp(System.currentTimeMillis());
+        Date time = new Date();
+        long timeStamp = time.getTime();
         event.setTimeStamp(timeStamp);
 
         String sqlQuery = "INSERT INTO event_feed (user_id, entity_id, event_type, operation,  time_stamp) " +
@@ -40,7 +42,7 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
             statement.setLong(2, event.getEntityId());
             statement.setString(3, event.getEventType().toString());
             statement.setString(4, event.getOperation().toString());
-            statement.setTimestamp(5, event.getTimeStamp());
+            statement.setLong(5, event.getTimeStamp());
             return statement;
         }, keyHolder);
         event.setEventId(Objects.requireNonNull(keyHolder.getKey()).longValue());
@@ -58,34 +60,12 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
         long userId = rs.getLong("user_id");
         long entityId = rs.getLong("entity_id");
         String type = rs.getString("event_type");
-        EventType eventType = toEventType(type);
+        EventType eventType = EventType.valueOf(type);
         String eventOperation = rs.getString("operation");
-        EventOperation operation = toEventOperation(eventOperation);
-        Timestamp timeStamp = rs.getTimestamp("time_stamp");
+        EventOperation operation = EventOperation.valueOf(eventOperation);
+        long timeStamp = rs.getLong("time_stamp");
 
         return new EventUser(id, userId, entityId, eventType, operation, timeStamp);
-    }
-
-    private EventOperation toEventOperation(String nameOperation) {
-        switch (nameOperation) {
-            case ("REMOVE"):
-                return EventOperation.REMOVE;
-            case ("ADD"):
-                return EventOperation.ADD;
-            default:
-                return EventOperation.UPDATE;
-        }
-    }
-
-    private EventType toEventType(String eventType) {
-        switch (eventType) {
-            case ("LIKE"):
-                return EventType.LIKE;
-            case ("REVIEW"):
-                return EventType.REVIEW;
-            default:
-                return EventType.FRIEND;
-        }
     }
 
 
