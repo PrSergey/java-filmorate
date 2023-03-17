@@ -21,7 +21,6 @@ import java.sql.Date;
 import java.util.HashSet;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -34,7 +33,6 @@ public class ReviewDbStorageTest {
     private final FilmStorage filmStorage;
     private final ReviewService reviewService;
 
-    private Review review;
 
     @BeforeAll
     public void beforeAllCreateFilmAndUserAndReview() {
@@ -44,7 +42,7 @@ public class ReviewDbStorageTest {
         Film film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
                 .duration(100).mpa(new Mpa(1L, null)).build();
         filmStorage.add(film);
-        review = Review.builder()
+        Review review = Review.builder()
                 .content("test content")
                 .isPositive(true)
                 .userId(1L)
