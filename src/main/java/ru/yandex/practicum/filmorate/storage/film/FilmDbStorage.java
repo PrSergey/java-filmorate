@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,7 +17,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -227,7 +225,13 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private List<Film> filmFilteredWithYear(List<Film> filmsFiltered, Integer year) {
-        return filmsFiltered.stream().filter(film -> year == film.getReleaseDate().getYear())
+        return filmsFiltered.stream().filter(film -> Objects.equals(year, parseDate(film.getReleaseDate())))
                 .collect(Collectors.toList());
+    }
+
+    private Integer parseDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
     }
 }

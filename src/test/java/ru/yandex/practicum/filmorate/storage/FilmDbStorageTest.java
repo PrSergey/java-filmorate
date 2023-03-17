@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -7,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -15,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,6 +147,27 @@ public class FilmDbStorageTest {
         filmService.removeLike(film.getId(), user.getId());
 
         assertFalse(filmStorage.hasLikeFromUser(film.getId(), user.getId()));
+    }
+
+    @Test
+    public void testGetPopularWithGenreAndYear() {
+        List<Genre> genres = new ArrayList<>();
+        genres.add(new Genre(1L, "Комедия"));
+        Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("123").genres(genres).mpa(mpaStorage.getById(1L)).build();
+        filmService.add(film1);
+
+        Film film2 = Film.builder().name("test2").releaseDate(Date.valueOf("1998-10-10"))
+                .duration(100).description("222").mpa(mpaStorage.getById(2L)).build();
+        filmService.add(film2);
+
+        Film film3 = Film.builder().name("test3").releaseDate(Date.valueOf("1997-10-10"))
+                .duration(100).description("321").mpa(mpaStorage.getById(3L)).build();
+        filmService.add(film3);
+
+        List<Film> films = filmService.getPopularWithGenreAndYear(10, 1L, 2000);
+
+        Assertions.assertEquals(films.get(0).getReleaseDate(), film1.getReleaseDate());
     }
 
     @Test
