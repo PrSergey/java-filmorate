@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -27,5 +28,7 @@ public interface FilmStorage {
     boolean hasLikeFromUser(Long id, Long userId);
 
     List<Film> getTop(Integer count);
+
+    List<Film> searchFilms(String query, String by);
 
 }

@@ -155,6 +155,17 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> searchFilms(String query, String by) {
+        List<Film> filteredFilms = new ArrayList<>();
+        for (Film film : getTop(10)) {
+            if (film.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredFilms.add(film);
+            }
+        }
+        return filteredFilms;
+    }
+
+    @Override
     public Set<Long> getAllLikes(Long id) {
         String sql = "SELECT user_id from likes_list where film_id = ?";
         List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
