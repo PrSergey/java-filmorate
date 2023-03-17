@@ -1,9 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ReviewDbStorageTest {
     private final ReviewStorage reviewStorage;
@@ -33,40 +32,34 @@ public class ReviewDbStorageTest {
     private final FilmStorage filmStorage;
     private final ReviewService reviewService;
 
-
     @BeforeAll
-    public void beforeAllCreateFilmAndUserAndReview() {
-        User user = new User(null, "agvaga@email.com",
-                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
-        userStorage.add(user);
-        Film film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
-                .duration(100).mpa(new Mpa(1L, null)).build();
-        filmStorage.add(film);
+    public void createUserAndFilm() {
+        userStorage.add(new User(null, "agvaga@email.com",
+                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>()));
+        userStorage.add(new User(null, "hxfht@email.com",
+                        "user46542", "hjzt", Date.valueOf("1997-04-09"), new HashSet<>()));
+        filmStorage.add(Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
+                .duration(100).mpa(new Mpa(1L, null)).build());
+    }
+
+    @Test
+    @Order(1)
+    public void testCreate() {
         Review review = Review.builder()
                 .content("test content")
                 .isPositive(true)
                 .userId(1L)
                 .filmId(1L)
+                .useful(0)
                 .build();
         reviewStorage.add(review);
-
+        assertThat(review).
+                hasFieldOrPropertyWithValue("reviewId", 1L).
+                hasFieldOrPropertyWithValue("content", "test content");
     }
 
     @Test
-    public void testCreate() {
-        Review review2 = Review.builder()
-                .content("test content film2")
-                .isPositive(true)
-                .userId(1L)
-                .filmId(1L)
-                .build();
-        reviewStorage.add(review2);
-        assertThat(review2).
-                hasFieldOrPropertyWithValue("reviewId", 2L).
-                hasFieldOrPropertyWithValue("content", "test content film2");
-    }
-
-    @Test
+    @Order(2)
     public void testGetReviewById() {
         Review review = reviewStorage.getById(1L);
         assertThat(review).
@@ -75,6 +68,7 @@ public class ReviewDbStorageTest {
     }
 
     @Test
+    @Order(3)
     public void testUpdateReview() {
         Review updateReview = Review.builder()
                 .reviewId(1L)
@@ -88,6 +82,7 @@ public class ReviewDbStorageTest {
     }
 
     @Test
+    @Order(4)
     public void testDeleteReview() {
         reviewStorage.delete(1L);
         Exception exception = assertThrows(NotFoundException.class, () -> {
@@ -95,5 +90,4 @@ public class ReviewDbStorageTest {
         });
         assertThat(exception.getMessage()).contains("Отзыв с таким id не был найден.");
     }
-
 }
