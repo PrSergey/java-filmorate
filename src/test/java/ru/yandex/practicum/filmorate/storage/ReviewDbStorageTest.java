@@ -25,26 +25,19 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ReviewDbStorageTest {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final ReviewService reviewService;
 
-    @BeforeAll
-    public void createUserAndFilm() {
-        userStorage.add(new User(null, "agvaga@email.com",
-                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>()));
-        userStorage.add(new User(null, "hxfht@email.com",
-                        "user46542", "hjzt", Date.valueOf("1997-04-09"), new HashSet<>()));
-        filmStorage.add(Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
-                .duration(100).mpa(new Mpa(1L, null)).build());
-    }
-
     @Test
     @Order(1)
     public void testCreate() {
+        userStorage.add(new User(null, "agvaga@email.com",
+                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>()));
+        filmStorage.add(Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
+                .duration(100).mpa(new Mpa(1L, null)).build());
         Review review = Review.builder()
                 .content("test content")
                 .isPositive(true)
@@ -61,8 +54,8 @@ public class ReviewDbStorageTest {
     @Test
     @Order(2)
     public void testGetReviewById() {
-        Review review = reviewStorage.getById(1L);
-        assertThat(review).
+        Review review1 = reviewStorage.getById(1L);
+        assertThat(review1).
                 hasFieldOrPropertyWithValue("reviewId", 1L).
                 hasFieldOrPropertyWithValue("content", "test content");
     }
