@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -24,13 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ReviewDbStorageTest {
     private static ReviewStorage reviewStorage;
     private static UserStorage userStorage;
     private static FilmStorage filmStorage;
     private static ReviewService reviewService;
-    static User user;
-    static Film film;
 
     @Autowired
     @Qualifier("reviewDbStorage")
@@ -55,10 +55,10 @@ public class ReviewDbStorageTest {
 
     @BeforeAll
     public static void beforeAllCreateFilmAndUserAndReview() {
-        user = new User(null, "agvaga@email.com",
+        User user = new User(null, "agvaga@email.com",
                 "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
         userStorage.add(user);
-        film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
+        Film film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
                 .duration(100).mpa(new Mpa(1L, null)).build();
         filmStorage.add(film);
         Review review = Review.builder()
@@ -75,8 +75,8 @@ public class ReviewDbStorageTest {
         Review review2 = Review.builder()
                 .content("test content film2")
                 .isPositive(true)
-                .userId(user.getId())
-                .filmId(film.getId())
+                .userId(1L)
+                .filmId(1L)
                 .build();
         reviewStorage.add(review2);
         assertThat(review2).
