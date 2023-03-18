@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, likes_list, reviews CASCADE;
+DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, likes_list, reviews, review_likes CASCADE;
 
 CREATE TABLE IF NOT EXISTS mpa_ratings
 (
@@ -61,4 +61,13 @@ CREATE TABLE IF NOT EXISTS reviews (
     user_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
     film_id BIGINT REFERENCES films (id) ON DELETE CASCADE,
     useful  INTEGER DEFAULT 0
+    );
+
+CREATE TABLE IF NOT EXISTS review_likes (
+    review_id   BIGINT NOT NULL,
+    user_id     BIGINT NOT NULL,
+    is_positive TINYINT NOT NULL,
+    CONSTRAINT review_id_fk FOREIGN KEY (review_id) REFERENCES reviews (id) ON DELETE CASCADE,
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT review_likes_ru UNIQUE (review_id, user_id)
     );
