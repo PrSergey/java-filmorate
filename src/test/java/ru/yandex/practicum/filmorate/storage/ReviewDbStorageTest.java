@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -25,40 +24,22 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ReviewDbStorageTest {
-    private static ReviewStorage reviewStorage;
-    private static UserStorage userStorage;
-    private static FilmStorage filmStorage;
-    private static ReviewService reviewService;
-
-    @Autowired
-    @Qualifier("reviewDbStorage")
-    public void setReviewStorage(ReviewStorage reviewStorage) {
-        ReviewDbStorageTest.reviewStorage = reviewStorage;
-    }
-
-    @Autowired
-    public void setUserStorage(UserStorage userStorage) {
-        ReviewDbStorageTest.userStorage = userStorage;
-    }
-
-    @Autowired
-    public void setFilmStorage(FilmStorage filmStorage) {
-        ReviewDbStorageTest.filmStorage = filmStorage;
-    }
-
-    @Autowired
-    public void setReviewService(ReviewService reviewService) {
-        ReviewDbStorageTest.reviewService = reviewService;
-    }
+    private final ReviewStorage reviewStorage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final ReviewService reviewService;
+    User user;
+    Film film;
 
     @BeforeAll
-    public static void beforeAllCreateFilmAndUserAndReview() {
-        User user = new User(null, "agvaga@email.com",
+    public void beforeAllCreateFilmAndUserAndReview() {
+        user = new User(null, "agvaga@email.com",
                 "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
         userStorage.add(user);
-        Film film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
+        film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
                 .duration(100).mpa(new Mpa(1L, null)).build();
         filmStorage.add(film);
         Review review = Review.builder()
@@ -72,13 +53,11 @@ public class ReviewDbStorageTest {
 
     @Test
     public void testCreate() {
-        Long userId = userStorage.getById(1L).getId();
-        Long filmId = filmStorage.getById(1L).getId();
         Review review2 = Review.builder()
                 .content("test content film2")
                 .isPositive(true)
-                .userId(userId)
-                .filmId(filmId)
+                .userId(user.getId())
+                .filmId(film.getId())
                 .build();
         reviewStorage.add(review2);
         assertThat(review2).
