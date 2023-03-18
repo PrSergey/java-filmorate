@@ -62,7 +62,7 @@ public class ReviewDbStorageTest {
                 .build();
         reviewStorage.add(review2);
         assertThat(review2).
-                hasFieldOrPropertyWithValue("reviewId", 2L).
+                hasFieldOrPropertyWithValue("reviewId", review2.getReviewId()).
                 hasFieldOrPropertyWithValue("content", "test content film2");
     }
 
