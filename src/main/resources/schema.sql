@@ -63,6 +63,15 @@ CREATE TABLE IF NOT EXISTS reviews (
     useful  INTEGER DEFAULT 0
     );
 
+CREATE TABLE IF NOT EXISTS review_likes (
+    review_id   BIGINT NOT NULL,
+    user_id     BIGINT NOT NULL,
+    is_positive TINYINT NOT NULL,
+    CONSTRAINT review_id_fk FOREIGN KEY (review_id) REFERENCES reviews (id) ON DELETE CASCADE,
+    CONSTRAINT user_id_fk FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT review_likes_ru UNIQUE (review_id, user_id)
+    );
+
 
 CREATE TABLE IF NOT EXISTS event_feed
 (
