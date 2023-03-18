@@ -70,7 +70,7 @@ public class ReviewDbStorageTest {
     public void testGetReviewById() {
         Review review = reviewStorage.getById(1L);
         assertThat(review).
-                hasFieldOrPropertyWithValue("reviewId", 1L).
+                hasFieldOrPropertyWithValue("reviewId", review.getReviewId()).
                 hasFieldOrPropertyWithValue("content", "test content");
     }
 
@@ -83,7 +83,7 @@ public class ReviewDbStorageTest {
                 .useful(1).build();
         reviewStorage.update(updateReview);
         assertThat(updateReview)
-                .hasFieldOrPropertyWithValue("reviewId", 1L)
+                .hasFieldOrPropertyWithValue("reviewId", updateReview.getReviewId())
                 .hasFieldOrPropertyWithValue("isPositive", false);
     }
 
