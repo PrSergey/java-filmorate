@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.SortType;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -18,7 +16,6 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreService genreService;
     private final UserStorage userStorage;
-    private final DirectorService directorService;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -63,11 +60,6 @@ public class FilmService {
 
     public List<Film> getTop(Integer count) {
         return filmStorage.getTop(count);
-    }
-
-    public List<Film> getFilmsByDirectorId(Long directorId, SortType sortBy) throws NotFoundException {
-        directorService.getById(directorId);
-        return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 }
 

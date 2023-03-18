@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.SortType;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -63,11 +62,6 @@ public class FilmController {
     public void deleteFilmById(@PathVariable Long filmId) {
         log.info("Фильм с id = {} удален", filmId);
         filmService.deleteFilmById(filmId);
-    }
-
-    @GetMapping("/films/director/{directorId}")
-    public List<Film> getFilmsByDirectorId(@PathVariable Long directorId, @RequestParam SortType sortBy) {
-        return filmService.getFilmsByDirectorId(directorId, sortBy);
     }
 
 }

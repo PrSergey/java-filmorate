@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.SortType;
 
 import java.util.List;
 import java.util.Set;
@@ -22,8 +21,6 @@ public interface FilmStorage {
     void delete(Film film);
 
     void deleteFilmById(Long filmId);
-
-    List<Film> getFilmsByDirectorId(Long id, SortType sortBy);
 
     void addLike(Long id, Long userId);
 
