@@ -75,11 +75,13 @@ public class ReviewDbStorageTest {
 
     @Test
     public void testCreate() {
+        Long userId = userStorage.getById(1L).getId();
+        Long filmId = filmStorage.getById(1L).getId();
         Review review2 = Review.builder()
                 .content("test content film2")
                 .isPositive(true)
-                .userId(1L)
-                .filmId(1L)
+                .userId(userId)
+                .filmId(filmId)
                 .build();
         reviewStorage.add(review2);
         assertThat(review2).
