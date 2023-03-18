@@ -7,10 +7,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -22,72 +21,72 @@ public class UserControllerTest {
 
     @Test
     public void addUser() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test@test.com\", " +
                                 "\"login\": \"test\", " +
                                 "\"name\": \"test\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.id").hasJsonPath())
-                .andExpect(jsonPath("$.email").value("test@test.com"))
-                .andExpect(jsonPath("$.login").value("test"))
-                .andExpect(jsonPath("$.name").value("test"))
-                .andExpect(jsonPath("$.birthday").value("1988-04-01"));
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").hasJsonPath())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("test@test.com"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.login").value("test"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("test"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.birthday").value("1988-04-01"));
     }
 
     @Test
     public void addUser_whereLoginEqualsName() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test11@test.com\", " +
                                 "\"login\": \"test-1\", " +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(jsonPath("$.login").value("test-1"))
-                .andExpect(jsonPath("$.name").value("test-1"));
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.login").value("test-1"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("test-1"));
     }
 
     @Test
     public void errorIfInvalidEmail() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test\", " +
                                 "\"login\": \"test\", " +
                                 "\"name\": \"test\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     @Test
     public void errorIfNoLogin() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"test\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     @Test
     public void errorIfInvalidLogin() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test@test.com\", " +
                                 "\"login\": \"test test\", " +
                                 "\"name\": \"test\"," +
                                 "\"birthday\": \"1988-04-01\"}"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
     @Test
     public void errorIfInvalidBirthday() throws Exception {
-        mockMvc.perform(post("/users")
+        mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\": \"test@test.com\", " +
                                 "\"login\": \"test\", " +
                                 "\"name\": \"test\"," +
                                 "\"birthday\": \"2088-04-01\"}"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(MockMvcResultMatchers.status().is4xxClientError());
     }
 
 }
