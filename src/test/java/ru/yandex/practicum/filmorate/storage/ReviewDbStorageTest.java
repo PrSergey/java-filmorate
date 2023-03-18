@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.webjars.NotFoundException;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.review.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -28,14 +30,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ReviewDbStorageTest {
-    private final ReviewStorage reviewStorage;
-    private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
-    private final ReviewService reviewService;
+    private static ReviewStorage reviewStorage;
+    private static UserStorage userStorage;
+    private static FilmStorage filmStorage;
+    private static ReviewService reviewService;
 
+    @Autowired
+    @Qualifier("reviewDbStorage")
+    public void setReviewStorage(ReviewStorage reviewStorage) {
+        ReviewDbStorageTest.reviewStorage = reviewStorage;
+    }
+
+    @Autowired
+    public void setUserStorage(UserStorage userStorage) {
+        ReviewDbStorageTest.userStorage = userStorage;
+    }
+
+    @Autowired
+    public void setFilmStorage(FilmStorage filmStorage) {
+        ReviewDbStorageTest.filmStorage = filmStorage;
+    }
+
+    @Autowired
+    public void setReviewService(ReviewService reviewService) {
+        ReviewDbStorageTest.reviewService = reviewService;
+    }
 
     @BeforeAll
-    public void beforeAllCreateFilmAndUserAndReview() {
+    public static void beforeAllCreateFilmAndUserAndReview() {
         User user = new User(null, "agvaga@email.com",
                 "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
         userStorage.add(user);
@@ -49,7 +71,6 @@ public class ReviewDbStorageTest {
                 .filmId(1L)
                 .build();
         reviewStorage.add(review);
-
     }
 
     @Test
