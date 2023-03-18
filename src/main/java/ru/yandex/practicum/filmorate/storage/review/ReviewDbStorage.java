@@ -11,9 +11,9 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Component
@@ -22,31 +22,48 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public List<Review> getAll(Long filmId, Integer count) {
-        if (filmId == null) {
-            String sql = "SELECT * FROM reviews ORDER BY useful DESC ";
-            List<Review> reviews = jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs));
-            return reviews
-                    .stream()
-                    .limit(count)
-                    .collect(Collectors.toList());
+        if (filmId == -1) {
+            String sql = "SELECT r.*, IFNULL(SUM(rl.useful), 0) AS useful " +
+                    " FROM reviews AS r " +
+                    " LEFT JOIN review_likes rl on r.id = rl.review_id " +
+                    " GROUP BY r.id " +
+                    " ORDER BY useful DESC " +
+                    " LIMIT ?";
+            return jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), count);
         } else {
-            String sql = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC ";
-            List<Review> reviews = jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), filmId)
-                    .stream()
-                    .limit(count)
-                    .collect(Collectors.toList());
-            return reviews;
+            String sql = "SELECT r.*, IFNULL(SUM(rl.useful), 0) AS useful " +
+                    " FROM reviews AS r " +
+                    " LEFT JOIN review_likes rl on r.id = rl.review_id " +
+                    " WHERE r.film_id = ?" +
+                    " GROUP BY r.id " +
+                    " ORDER BY useful DESC " +
+                    " LIMIT ?";
+            return new ArrayList<>(jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), filmId, count));
         }
     }
 
     @Override
+    public List<Review> getAll() {
+        String sqlQuery = "SELECT r.*, IFNULL(SUM(rk.useful), 0) AS useful " +
+                " FROM reviews AS r " +
+                " LEFT JOIN review_likes rl on r.id = rl.review_id " +
+                " GROUP BY r.id " +
+                " ORDER BY useful DESC";
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeReview(rs));
+    }
+
+    @Override
     public Review getById(Long reviewId) {
-        String sql = "SELECT * FROM reviews WHERE id=?";
+        String sql = "SELECT r.*, SUM(rl.useful) AS useful " +
+                " FROM reviews AS r " +
+                " LEFT JOIN review_likes rl on r.id = rl.review_id " +
+                " WHERE r.id = ? " +
+                " GROUP BY r.id";
+
         Review review = jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), reviewId)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException("Отзыв с таким id не был найден."))
-                ;
+                .orElseThrow(() -> new NotFoundException("Отзыв с таким id не был найден."));
         return review;
     }
 
@@ -86,26 +103,32 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addLike(Long reviewId, Long userId) {
-        String sql = "UPDATE reviews SET useful = useful + 1 WHERE id = ?";
-        jdbcTemplate.update(sql, reviewId);
+        String sql = "MERGE INTO review_likes (review_id, user_id, useful) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, reviewId, userId, 1);
     }
 
     @Override
     public void addDislike(Long reviewId, Long userId) {
-        String sql = "UPDATE reviews SET useful = useful-1 WHERE id = ?";
-        jdbcTemplate.update(sql, reviewId);
+        String sql = "MERGE INTO review_likes (review_id, user_id, useful) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, reviewId, userId, -1);
     }
 
     @Override
     public void removeLike(Long reviewId, Long userId) {
-        String sql1 = "UPDATE reviews SET useful = (useful - 1) WHERE id = ?";
-        jdbcTemplate.update(sql1, reviewId);
+        String sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND useful = ?";
+        if (jdbcTemplate.update(sql, reviewId, userId, 1) == 0) {
+            throw new NotFoundException(
+                    String.format("Review like with %d id not found", reviewId));
+        }
     }
 
     @Override
     public void removeDislike(Long reviewId, Long userId) {
-        String sql1 = "UPDATE reviews SET useful = (useful + 1) WHERE id = ?";
-        jdbcTemplate.update(sql1, reviewId);
+        String sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND useful = ?";
+        if (jdbcTemplate.update(sql, reviewId, userId, -1) == 0) {
+            throw new NotFoundException(
+                    String.format("Review like with %d id not found", reviewId));
+        }
     }
 
     private Review makeReview(ResultSet rs) throws SQLException {
