@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.review.ReviewDbStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -34,6 +33,8 @@ public class ReviewDbStorageTest {
     private static UserStorage userStorage;
     private static FilmStorage filmStorage;
     private static ReviewService reviewService;
+    static User user;
+    static Film film;
 
     @Autowired
     @Qualifier("reviewDbStorage")
@@ -58,10 +59,10 @@ public class ReviewDbStorageTest {
 
     @BeforeAll
     public static void beforeAllCreateFilmAndUserAndReview() {
-        User user = new User(null, "agvaga@email.com",
+        user = new User(null, "agvaga@email.com",
                 "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
         userStorage.add(user);
-        Film film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
+        film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
                 .duration(100).mpa(new Mpa(1L, null)).build();
         filmStorage.add(film);
         Review review = Review.builder()
@@ -75,13 +76,11 @@ public class ReviewDbStorageTest {
 
     @Test
     public void testCreate() {
-        Long userId = userStorage.getById(1L).getId();
-        Long filmId = filmStorage.getById(1L).getId();
         Review review2 = Review.builder()
                 .content("test content film2")
                 .isPositive(true)
-                .userId(userId)
-                .filmId(filmId)
+                .userId(user.getId())
+                .filmId(film.getId())
                 .build();
         reviewStorage.add(review2);
         assertThat(review2).
