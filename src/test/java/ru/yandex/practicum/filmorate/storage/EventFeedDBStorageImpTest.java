@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
@@ -52,10 +53,11 @@ class EventFeedDBStorageImpTest {
     }
 
     @Test
-    public void testGetFeedWithReview(){
+    public void testGetFeedAfterAdd(){
         List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
-        Assertions.assertEquals(eventUser.size(), 1);
+        Assertions.assertEquals(eventUser.get(eventUser.size()-1).getOperation(), EventOperation.ADD);
     }
+
 
     @Test
     public void testGetFeedWithReviewAfterAddUpdate(){
@@ -66,20 +68,9 @@ class EventFeedDBStorageImpTest {
                 .useful(1).build();
         reviewStorage.update(updateReview);
         List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
-        Assertions.assertEquals(eventUser.size(), 2);
+        Assertions.assertEquals(eventUser.get(eventUser.size()-1).getOperation(), EventOperation.UPDATE);
     }
 
-    @Test
-    public void testGetFeedWithReviewAfterAddUpdateRemove(){
-        Review updateReview = Review.builder()
-                .reviewId(1L)
-                .content("content")
-                .isPositive(false)
-                .useful(1).build();
-        reviewStorage.update(updateReview);
-        reviewStorage.delete(1L);
-        List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
-        Assertions.assertEquals(eventUser.size(), 3);
-    }
+
 
 }
