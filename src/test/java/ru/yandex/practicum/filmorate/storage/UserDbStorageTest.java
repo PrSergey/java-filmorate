@@ -38,7 +38,7 @@ public class UserDbStorageTest {
         List<User> allUsers = userStorage.getAll();
 
         assertThat(allUsers)
-                .hasSize(allUsers.size())
+                .hasSize(3)
                 .extracting(User::getId)
                 .contains(user1.getId(), user2.getId(), user3.getId());
     }
