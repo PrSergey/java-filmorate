@@ -5,7 +5,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -36,17 +35,9 @@ public class ReviewDbStorageTest {
 
     @BeforeAll
     public void beforeAllCreateFilmAndUserAndReview() {
-        try{
-            String sql = "TRUNCATE TABLE users";
-            jdbcTemplate.update(sql);
-        }catch (Throwable e){
-            System.out.println("нет пользователей");
-        }
-
-        for (int i=0; i<2; i++)
-        user = new User(null, "agvaga@email.com",
-                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
-        userStorage.add(user);
+//        user = new User(null, "agvaga@email.com",
+//                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
+//        userStorage.add(user);
         film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
                 .duration(100).mpa(new Mpa(1L, null)).build();
         filmStorage.add(film);
