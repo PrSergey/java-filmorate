@@ -35,8 +35,10 @@ class EventFeedDBStorageImpTest {
 
     private final EventFeedDBStorage eventFeedDBStorage;
 
-    @BeforeAll
-    public void beforeAllCreateFilmAndUserAndReview() {
+
+
+    @Test
+    public void testGetFeedAfterAdd(){
         user = new User(null, "agvaga@email.com",
                 "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
         userStorage.add(user);
@@ -50,16 +52,6 @@ class EventFeedDBStorageImpTest {
                 .filmId(film.getId())
                 .build();
         reviewStorage.add(review);
-    }
-    @AfterAll
-    public void afterAll(){
-        String sql = "DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, " +
-                "likes_list, reviews, review_likes, event_feed CASCADE;";
-        jdbcTemplate.update(sql);
-    }
-
-    @Test
-    public void testGetFeedAfterAdd(){
         List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
         Assertions.assertEquals(eventUser.get(eventUser.size()-1).getOperation(), EventOperation.ADD);
     }
