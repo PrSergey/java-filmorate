@@ -34,4 +34,12 @@ public class User {
     private Date birthday;
 
     private Set<Long> friends;
+
+    public User(String email, String login, String name, Date birthday, Set<Long> friends) {
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+        this.friends = friends;
+    }
 }
