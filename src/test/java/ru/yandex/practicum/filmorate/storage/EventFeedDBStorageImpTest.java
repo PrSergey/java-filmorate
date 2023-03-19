@@ -29,7 +29,6 @@ class EventFeedDBStorageImpTest {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final JdbcTemplate jdbcTemplate;
     User user;
     Film film;
 
