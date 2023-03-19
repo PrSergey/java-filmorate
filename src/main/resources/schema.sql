@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, likes_list, reviews CASCADE;
+DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, likes_list, reviews, review_likes, event_feed CASCADE;
 
 CREATE TABLE IF NOT EXISTS mpa_ratings
 (
@@ -82,6 +82,6 @@ CREATE TABLE IF NOT EXISTS event_feed
     entity_id BIGINT,
     event_type varchar(50),
     operation varchar(50),
-    time_stamp timestamp
+    timestamp BIGINT
 
 );

@@ -31,10 +31,10 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
     public EventUser setEventFeed(EventUser event) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         Date time = new Date();
-        long timeStamp = time.getTime();
-        event.setTimeStamp(timeStamp);
+        long timestamp = time.getTime();
+        event.setTimestamp(timestamp);
 
-        String sqlQuery = "INSERT INTO event_feed (user_id, entity_id, event_type, operation,  time_stamp) " +
+        String sqlQuery = "INSERT INTO event_feed (user_id, entity_id, event_type, operation,  timestamp) " +
                 "VALUES (?, ?, ?, ?, ?);";
         jdbcTemplate.update(connection -> {
             PreparedStatement statement = connection.prepareStatement(sqlQuery, new String[]{"id"});
@@ -42,7 +42,7 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
             statement.setLong(2, event.getEntityId());
             statement.setString(3, event.getEventType().toString());
             statement.setString(4, event.getOperation().toString());
-            statement.setLong(5, event.getTimeStamp());
+            statement.setLong(5, event.getTimestamp());
             return statement;
         }, keyHolder);
         event.setEventId(Objects.requireNonNull(keyHolder.getKey()).longValue());
@@ -51,7 +51,7 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
 
     @Override
     public List<EventUser>  getEventFeed(long userId) {
-        String sqlQuery = "select * from event_feed where user_id = ?";
+        String sqlQuery = "select * from event_feed where user_id = ? ORDER BY timestamp";
         return jdbcTemplate.query(sqlQuery, (rs, rn) -> mapToEventUser(rs), userId);
     }
 
@@ -63,7 +63,7 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
         EventType eventType = EventType.valueOf(type);
         String eventOperation = rs.getString("operation");
         EventOperation operation = EventOperation.valueOf(eventOperation);
-        long timeStamp = rs.getLong("time_stamp");
+        long timeStamp = rs.getLong("timestamp");
 
         return new EventUser(id, userId, entityId, eventType, operation, timeStamp);
     }

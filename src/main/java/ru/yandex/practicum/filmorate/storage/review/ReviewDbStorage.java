@@ -6,7 +6,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
+import ru.yandex.practicum.filmorate.constant.EventType;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +23,7 @@ import java.util.Objects;
 @Component
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final EventFeedDBStorage eventFeedDBStorage;
 
     @Override
     public List<Review> getAll(Long filmId, Integer count) {
@@ -80,6 +85,10 @@ public class ReviewDbStorage implements ReviewStorage {
             return ps;
         }, keyHolder);
         review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+
+        EventUser eventUser = new EventUser(review.getUserId(), review.getReviewId(),
+                EventType.REVIEW, EventOperation.ADD);
+        eventFeedDBStorage.setEventFeed(eventUser);
         return review;
     }
 
@@ -92,12 +101,20 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getIsPositive(),
                 review.getReviewId()
         );
+        Long reviewByUserId = getById(review.getReviewId()).getUserId();
+        EventUser eventUser = new EventUser(reviewByUserId, review.getReviewId(),
+                EventType.REVIEW, EventOperation.UPDATE);
+        eventFeedDBStorage.setEventFeed(eventUser);
         return getById(review.getReviewId());
     }
 
     @Override
     public void delete(Long reviewId) {
         String sql = "DELETE FROM reviews WHERE id = ? ";
+        Review review = getById(reviewId);
+        EventUser eventUser = new EventUser(review.getUserId(), reviewId,
+                EventType.REVIEW, EventOperation.REMOVE);
+        eventFeedDBStorage.setEventFeed(eventUser);
         jdbcTemplate.update(sql, reviewId);
     }
 

@@ -3,10 +3,9 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.webjars.NotFoundException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
@@ -18,20 +17,22 @@ import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ReviewDbStorageTest {
+class EventFeedDBStorageImpTest {
+
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final ReviewService reviewService;
+    private final JdbcTemplate jdbcTemplate;
     User user;
     Film film;
+
+    private final EventFeedDBStorage eventFeedDBStorage;
 
     @BeforeAll
     public void beforeAllCreateFilmAndUserAndReview() {
@@ -51,49 +52,34 @@ public class ReviewDbStorageTest {
     }
 
     @Test
-    public void testCreate() {
-        Review review2 = Review.builder()
-                .content("test content film2")
-                .isPositive(true)
-                .userId(user.getId())
-                .filmId(film.getId())
-                .build();
-        reviewStorage.add(review2);
-        assertThat(review2).
-                hasFieldOrPropertyWithValue("reviewId", review2.getReviewId()).
-                hasFieldOrPropertyWithValue("content", "test content film2");
+    public void testGetFeedWithReview(){
+        List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
+        Assertions.assertEquals(eventUser.size(), 1);
     }
 
     @Test
-    public void testGetReviewById() {
-        Review review = reviewStorage.getById(1L);
-        assertThat(review).
-                hasFieldOrPropertyWithValue("reviewId", review.getReviewId()).
-                hasFieldOrPropertyWithValue("content", "test content");
-    }
-
-    @Test
-    public void testUpdateReview() {
+    public void testGetFeedWithReviewAfterAddUpdate(){
         Review updateReview = Review.builder()
                 .reviewId(1L)
                 .content("content")
                 .isPositive(false)
                 .useful(1).build();
         reviewStorage.update(updateReview);
-        assertThat(updateReview)
-                .hasFieldOrPropertyWithValue("reviewId", updateReview.getReviewId())
-                .hasFieldOrPropertyWithValue("isPositive", false);
+        List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
+        Assertions.assertEquals(eventUser.size(), 2);
     }
 
     @Test
-    public void testDeleteReview() {
+    public void testGetFeedWithReviewAfterAddUpdateRemove(){
+        Review updateReview = Review.builder()
+                .reviewId(1L)
+                .content("content")
+                .isPositive(false)
+                .useful(1).build();
+        reviewStorage.update(updateReview);
         reviewStorage.delete(1L);
-        Exception exception = assertThrows(NotFoundException.class, () -> {
-            reviewService.getById(1L);
-        });
-        assertThat(exception.getMessage()).contains("Отзыв с таким id не был найден.");
+        List<EventUser> eventUser = eventFeedDBStorage.getEventFeed(1);
+        Assertions.assertEquals(eventUser.size(), 3);
     }
-
-
 
 }

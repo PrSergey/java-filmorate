@@ -19,7 +19,7 @@ public class EventUser {
 
     private EventType eventType;
     private EventOperation operation;
-    private long timeStamp;
+    private long timestamp;
 
     public EventUser(long userId, long entityId, EventType eventType, EventOperation operation) {
         this.userId = userId;
