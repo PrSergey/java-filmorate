@@ -26,7 +26,7 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getAll() {
         String sql =
                 "select d.id," +
-                        "d.name" +
+                        "d.name " +
                         "from directors as d;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeDirector(rs));
     }
@@ -35,8 +35,8 @@ public class DirectorDbStorage implements DirectorStorage {
     public Director getById(Long id) throws NotFoundException {
         String sql =
                 "select d.id," +
-                        "d.name" +
-                        "from directors as d" +
+                        "d.name " +
+                        "from directors as d " +
                         "where d.id = ?;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeDirector(rs), id)
                 .stream()
@@ -48,9 +48,9 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getByFilmId(Long filmId) throws NotFoundException {
         String sql =
                 "select d.id," +
-                        "d.name" +
-                        "from films_directors as fd" +
-                        "join directors as d on fd.director.id = d.id" +
+                        "d.name " +
+                        "from films_directors as fd " +
+                        "join directors as d on fd.director_id = d.id " +
                         "where fd.film_id = ?;";
         return jdbcTemplate.query(sql, (rs, rowNum) -> makeDirector(rs), filmId);
     }

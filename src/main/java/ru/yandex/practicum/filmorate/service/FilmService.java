@@ -35,6 +35,9 @@ public class FilmService {
         if (film.getGenres() != null) {
             genreService.updateForFilm(receivedFilm.getId(), film.getGenres());
         }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(receivedFilm.getId(), film.getDirectors());
+        }
         return receivedFilm;
     }
 
@@ -46,6 +49,7 @@ public class FilmService {
         if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
+        directorService.updateForFilm(film.getId(), film.getDirectors());
         return filmStorage.update(film);
     }
 

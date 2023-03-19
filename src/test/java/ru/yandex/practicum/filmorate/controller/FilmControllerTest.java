@@ -32,7 +32,8 @@ public class FilmControllerTest {
                                 "\"description\": \"test\", " +
                                 "\"releaseDate\": \"1975-03-14\"," +
                                 "\"duration\": 90," +
-                                "\"mpa\": {\"id\": 1}}"))
+                                "\"mpa\": {\"id\": 1}}" +
+                                "\"directors\": {\"id\": 1, \"name\": \"test\"}"))
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(jsonPath("$.id").hasJsonPath())
                 .andExpect(jsonPath("$.name").value("test"))
