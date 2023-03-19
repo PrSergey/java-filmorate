@@ -29,6 +29,7 @@ class EventFeedDBStorageImpTest {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+    private final JdbcTemplate jdbcTemplate;
     User user;
     Film film;
 
@@ -49,6 +50,12 @@ class EventFeedDBStorageImpTest {
                 .filmId(film.getId())
                 .build();
         reviewStorage.add(review);
+    }
+    @AfterAll
+    public void afterAll(){
+        String sql = "DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, " +
+                "likes_list, reviews, review_likes, event_feed CASCADE;";
+        jdbcTemplate.update(sql);
     }
 
     @Test
