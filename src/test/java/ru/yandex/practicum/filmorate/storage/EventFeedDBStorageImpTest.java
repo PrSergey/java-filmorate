@@ -30,7 +30,6 @@ class EventFeedDBStorageImpTest {
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
-    User user;
     Film film;
 
     private final EventFeedDBStorage eventFeedDBStorage;
@@ -39,7 +38,7 @@ class EventFeedDBStorageImpTest {
 
     @Test
     public void testGetFeedAfterAdd(){
-        user = new User(null, "agvaga@email.com",
+        User user = new User(null, "agvaga@email.com",
                 "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
         userStorage.add(user);
         film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
