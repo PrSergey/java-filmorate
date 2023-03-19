@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
