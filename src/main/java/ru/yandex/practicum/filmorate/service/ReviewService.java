@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -16,12 +15,9 @@ import java.util.Optional;
 public class ReviewService {
     private final ReviewStorage reviewStorage;
 
-    public List<Review> getAll(Optional<Long> filmId, Optional<Integer> count) {
+    public List<Review> getAll(Long filmId, Integer count) {
         log.info("Запрос на получения всех отзывов");
-        if (filmId.isEmpty() && count.isEmpty()) {
-            return reviewStorage.getAll();
-        }
-        return reviewStorage.getAll(filmId.orElse(-1L), count.orElse(10));
+        return reviewStorage.getAll(filmId, count);
     }
 
     public Review getById(Long reviewId) {
