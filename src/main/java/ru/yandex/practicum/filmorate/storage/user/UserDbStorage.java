@@ -125,6 +125,13 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(list);
     }
 
+    @Override
+    public void deleteUserById(Long userId) {
+        getById(userId);
+        String sqlQuery = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, userId);
+    }
+
     private User makeUser(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String email = rs.getString("email");

@@ -54,6 +54,10 @@ public class FilmService {
         filmStorage.removeLike(id, userId);
     }
 
+    public void deleteFilmById(Long filmId){
+        filmStorage.deleteFilmById(filmId);
+    }
+
     public List<Film> getTop(Integer count) {
         return filmStorage.getTop(count);
     }
