@@ -35,9 +35,9 @@ public class ReviewDbStorageTest {
 
     @BeforeAll
     public void beforeAllCreateFilmAndUserAndReview() {
-//        user = new User(null, "agvaga@email.com",
-//                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
-//        userStorage.add(user);
+        user = new User(null, "agvaga@email.com",
+                "user457", "gaerg", Date.valueOf("1997-04-09"), new HashSet<>());
+        userStorage.add(user);
         film = Film.builder().name("test").description("test").releaseDate(Date.valueOf("2020-10-10"))
                 .duration(100).mpa(new Mpa(1L, null)).build();
         filmStorage.add(film);
