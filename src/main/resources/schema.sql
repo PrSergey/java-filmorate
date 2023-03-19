@@ -1,4 +1,6 @@
+
 DROP TABLE IF EXISTS films, genres, films_genres, users, friendships, likes_list, reviews, review_likes, event_feed CASCADE;
+
 
 CREATE TABLE IF NOT EXISTS mpa_ratings
 (

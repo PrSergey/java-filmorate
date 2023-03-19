@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +15,6 @@ import java.util.Optional;
 @Slf4j
 public class ReviewService {
     private final ReviewStorage reviewStorage;
-    private final UserStorage userStorage;
 
     public List<Review> getAll(Optional<Long> filmId, Optional<Integer> count) {
         log.info("Запрос на получения всех отзывов");

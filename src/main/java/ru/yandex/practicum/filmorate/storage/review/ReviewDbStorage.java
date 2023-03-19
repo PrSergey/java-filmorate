@@ -12,6 +12,9 @@ import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
 
+import ru.yandex.practicum.filmorate.model.Review;
+
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,7 +26,9 @@ import java.util.Objects;
 @Component
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+
     private final EventFeedDBStorage eventFeedDBStorage;
+
 
     @Override
     public List<Review> getAll(Long filmId, Integer count) {
