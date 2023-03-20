@@ -55,7 +55,6 @@ public class UserService {
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
-        getById(id);
         List<User> friends = new ArrayList<>();
         Set<Long> friendsIds = userStorage.getUserFriendsById(id);
         if (friendsIds == null) {
@@ -66,10 +65,6 @@ public class UserService {
             friends.add(friend);
         }
         return friends;
-    }
-
-    public void deleteUserById(Long userId) {
-        userStorage.deleteUserById(userId);
     }
 
     private void checkUserById(Long id, Long friendId) {
