@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -15,6 +18,7 @@ import java.util.Set;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final EventFeedDBStorage eventFeedDBStorage;
 
     public List<User> getAll() {
         return userStorage.getAll();
@@ -49,6 +53,7 @@ public class UserService {
     }
 
     public List<User> getAllFriends(Long id) throws NotFoundException {
+        getById(id);
         List<User> friends = new ArrayList<>();
         Set<Long> friendsIds = userStorage.getUserFriendsById(id);
         if (friendsIds == null) {
@@ -61,6 +66,10 @@ public class UserService {
         return friends;
     }
 
+    public void deleteUserById(Long userId) {
+        userStorage.deleteUserById(userId);
+    }
+
     private void checkUserById(Long id, Long friendId) {
         User user = getById(id);
         User friend = getById(friendId);
@@ -70,5 +79,9 @@ public class UserService {
         if (friend == null) {
             throw new NotFoundException("Пользователь с id=" + id + " не существует");
         }
+    }
+
+    public List<EventUser>  getEventFeed(long userId){
+        return eventFeedDBStorage.getEventFeed(userId);
     }
 }

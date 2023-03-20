@@ -6,7 +6,11 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
+import ru.yandex.practicum.filmorate.constant.EventType;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -22,6 +26,7 @@ import java.util.Set;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final EventFeedDBStorage eventFeedDBStorage;
 
     @Override
     public List<User> getAll() {
@@ -98,12 +103,16 @@ public class UserDbStorage implements UserStorage {
     public void makeFriends(Long userId, Long friendId) {
         String sqlQuery = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, friendId);
+        EventUser eventUser = new EventUser(userId, friendId, EventType.FRIEND, EventOperation.ADD);
+        eventFeedDBStorage.setEventFeed(eventUser);
     }
 
     @Override
     public void removeFriends(Long userId, Long friendId) {
         String sqlQuery = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?;";
         jdbcTemplate.update(sqlQuery, userId, friendId);
+        EventUser eventUser = new EventUser(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
+        eventFeedDBStorage.setEventFeed(eventUser);
     }
 
     @Override
@@ -114,6 +123,13 @@ public class UserDbStorage implements UserStorage {
                         "WHERE fr.user_id = ?;";
         List<Long> list = jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
         return new HashSet<>(list);
+    }
+
+    @Override
+    public void deleteUserById(Long userId) {
+        getById(userId);
+        String sqlQuery = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, userId);
     }
 
     private User makeUser(ResultSet rs) throws SQLException {

@@ -4,7 +4,9 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -56,15 +58,27 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}/friends/{friendId}")
-    void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
+    public void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} добавил пользователя {} в друзья", id, friendId);
         userService.makeFriends(id, friendId);
     }
 
     @DeleteMapping("/users/{id}/friends/{friendId}")
-    void deleteFriends(@PathVariable Long id, @PathVariable Long friendId) {
+    public void deleteFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} удалил пользователя {} из друзей", id, friendId);
         userService.removeFriends(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/feed")
+    public List<EventUser> getEventFeed(@PathVariable Long id) {
+        getUser(id);
+        return userService.getEventFeed(id);
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public void deleteUserById(@PathVariable Long userId) {
+        log.info("Удален пользователь id = {}", userId);
+        userService.deleteUserById(userId);
     }
 
 }
