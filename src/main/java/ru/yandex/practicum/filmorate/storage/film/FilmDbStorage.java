@@ -6,17 +6,14 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
 import ru.yandex.practicum.filmorate.constant.EventType;
-import ru.yandex.practicum.filmorate.model.EventUser;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.constant.SortType;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
-import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -34,6 +31,8 @@ public class FilmDbStorage implements FilmStorage {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final GenreStorage genreStorage;
     private final EventFeedDBStorage eventFeedDBStorage;
+
+    private final DirectorStorage directorStorage;
 
     @Override
     public List<Film> getAll() {
@@ -174,6 +173,55 @@ public class FilmDbStorage implements FilmStorage {
         return new HashSet<>(list);
     }
 
+    @Override
+    public List<Film> getFilmsByDirectorId(Long id, SortType sortBy) {
+        String sqlQuery;
+        switch (sortBy) {
+            case year:
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                                "FROM films_directors AS fd " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "JOIN films AS f" +
+                                "    ON f.id = fd.film_id " +
+                                "WHERE fd.director_id = ?" +
+                                "ORDER BY f.release_date;";
+                break;
+            case likes:
+                sqlQuery =
+                        "SELECT f.id, " +
+                                "f.name, " +
+                                "f.description, " +
+                                "f.release_date, " +
+                                "f.duration, " +
+                                "f.mpa_id, " +
+                                "m.name AS mpa_name " +
+                                "FROM films_directors AS fd " +
+                                "JOIN MPA_ratings AS m" +
+                                "    ON m.id = f.mpa_id " +
+                                "JOIN films AS f" +
+                                "    ON f.id = fd.film_id " +
+                                "LEFT JOIN (SELECT film_id, " +
+                                "      COUNT(user_id) rate " +
+                                "      FROM likes_list " +
+                                "      GROUP BY film_id " +
+                                ") r ON fd.id = r.film_id " +
+                                "WHERE fd.director_id = ?" +
+                                "ORDER BY r.rate DESC ";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + sortBy);
+        }
+        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
+    }
+
     private Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
@@ -186,7 +234,10 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getLong("mpa_id"),
                 rs.getString("mpa_name")
         );
-        return new Film(id, name, description, releaseDate, duration, genres, mpa, likes);
+        List<Director> directors = new ArrayList<>();
+        Film film = new Film(id, name, description, releaseDate, duration, genres, mpa, likes, directors);
+        film.setDirectors(directorStorage.getByFilmId(id));
+        return film;
     }
 
     private List<Film> getFilms(List<Film> films) {
