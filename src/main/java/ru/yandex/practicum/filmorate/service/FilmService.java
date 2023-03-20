@@ -45,6 +45,9 @@ public class FilmService {
         if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
         }
+        if (film.getDirectors() != null) {
+            directorService.updateForFilm(film.getId(), film.getDirectors());
+        }
         return filmStorage.update(film);
     }
 
