@@ -161,17 +161,17 @@ public class FilmDbStorage implements FilmStorage {
         return new HashSet<>(list);
     }
 
-    private Film makeFilm(ResultSet rs) throws SQLException {
+    public Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
         Set<Long> likes = getAllLikes(id);
-        List<Genre> genres = new ArrayList<>();
+        List<Genre> genres = genreStorage.getByFilmId(rs.getLong("id"));
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
-                rs.getString("mpa_name")
+                rs.getString("mpa_ratings.name")
         );
         return new Film(id, name, description, releaseDate, duration, genres, mpa, likes);
     }

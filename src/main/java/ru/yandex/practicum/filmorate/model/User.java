@@ -34,4 +34,5 @@ public class User {
     private Date birthday;
 
     private Set<Long> friends;
+
 }
