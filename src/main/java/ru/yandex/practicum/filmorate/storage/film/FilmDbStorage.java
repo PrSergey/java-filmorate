@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -219,7 +221,8 @@ public class FilmDbStorage implements FilmStorage {
             default:
                 throw new IllegalStateException("Unexpected value: " + sortBy);
         }
-        return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), id);
+        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), id);
+        return getFilms(films);
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {

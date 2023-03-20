@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -17,8 +18,8 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenreService genreService;
     private final UserStorage userStorage;
-
     private final DirectorService directorService;
+    private final DirectorStorage directorStorage;
 
     public List<Film> getAll() {
         return filmStorage.getAll();
@@ -47,6 +48,9 @@ public class FilmService {
         }
         if (film.getDirectors() != null) {
             directorService.updateForFilm(film.getId(), film.getDirectors());
+        }
+        if (film.getDirectors() == null) {
+            directorStorage.deleteAllByFilmId(film.getId());
         }
         return filmStorage.update(film);
     }
