@@ -32,6 +32,7 @@ public class FilmDbStorage implements FilmStorage {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final GenreStorage genreStorage;
     private final EventFeedDBStorage eventFeedDBStorage;
+
     private final DirectorStorage directorStorage;
 
     @Override
@@ -189,6 +190,65 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year) {
+        List<Film> films = getTop(count);
+        List<Film> filmsFiltered;
+        if (genreId != 0 && year != 0) {
+            filmsFiltered = filmFilteredWithGenre(films, genreId);
+            return filmFilteredWithYear(filmsFiltered, year);
+        } else if (year != 0) {
+            return filmFilteredWithYear(films, year);
+        } else if (genreId != 0) {
+            return filmFilteredWithGenre(films, genreId);
+        } else {
+            return films;
+        }
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, List<String> searchBy) {
+        String searchTerm = "%" + query + "%";
+        String baseSqlQuery = "SELECT DISTINCT f.id, " +
+                "f.name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "f.mpa_id, " +
+                "r.rate, " +
+                "m.name AS mpa_name " +
+                "FROM films AS f " +
+                "JOIN mpa_ratings AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN films_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.id " +
+                "LEFT JOIN films_directors AS fd ON f.id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.id " +
+                "LEFT JOIN (SELECT film_id, COUNT(user_id) rate FROM likes_list GROUP BY film_id) r ON f.id = r.film_id ";
+
+        List<Object> queryParams = new ArrayList<>();
+        StringBuilder whereClause = new StringBuilder();
+
+        for (String searchParam : searchBy) {
+            if (searchParam.contains("title")) {
+                whereClause.append("LOWER(f.name) LIKE ? OR LOWER(f.description) LIKE ? OR ");
+                queryParams.add(searchTerm);
+                queryParams.add(searchTerm);
+            }
+            if (searchParam.contains("director")) {
+                whereClause.append("LOWER(d.name) LIKE ? OR ");
+                queryParams.add(searchTerm);
+            }
+        }
+
+        if (whereClause.length() == 0) {
+            return getTop(10);
+        } else {
+            whereClause = new StringBuilder(whereClause.substring(0, whereClause.length() - 4));
+            String sqlQuery = baseSqlQuery + "WHERE " + whereClause + "ORDER BY r.rate DESC ";
+            return getFilms(jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), queryParams.toArray()));
+        }
+    }
+
+    @Override
     public Set<Long> getAllLikes(Long id) {
         String sql = "SELECT user_id from likes_list where film_id = ?";
         List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
@@ -288,4 +348,21 @@ public class FilmDbStorage implements FilmStorage {
         });
     }
 
+    private List<Film> filmFilteredWithGenre(List<Film> films, Long genreId) {
+        return films.stream()
+                .filter(f -> f.getGenres().stream()
+                        .anyMatch(g -> Objects.equals(g.getId(), genreId)))
+                .collect(Collectors.toList());
+    }
+
+    private List<Film> filmFilteredWithYear(List<Film> filmsFiltered, Integer year) {
+        return filmsFiltered.stream().filter(film -> Objects.equals(year, parseDate(film.getReleaseDate())))
+                .collect(Collectors.toList());
+    }
+
+    private Integer parseDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
+    }
 }

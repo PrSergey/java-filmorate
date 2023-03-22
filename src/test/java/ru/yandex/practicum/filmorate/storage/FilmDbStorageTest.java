@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -146,6 +147,7 @@ public class FilmDbStorageTest {
     }
 
     @Test
+    @Transactional
     public void testGetTop() {
 
         Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
@@ -170,13 +172,32 @@ public class FilmDbStorageTest {
         filmService.addLike(film1.getId(), user2.getId());
         filmService.addLike(film2.getId(), user1.getId());
 
-        List<Film> topFilms = filmService.getTop(2);
-
         film1 = filmService.getById(film1.getId());
         film2 = filmService.getById(film2.getId());
 
+        List<Film> topFilms = filmService.getTop(2);
         assertEquals(2, topFilms.size());
         assertEquals(film1.getId(), topFilms.get(0).getId());
-        // assertEquals(film2.getId(), topFilms.get(1).getId());
+        assertEquals(film2.getId(), topFilms.get(1).getId());
+    }
+
+    @Test
+    public void searchTest() {
+
+        Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("123").mpa(mpaStorage.getById(1L)).build();
+        filmService.add(film1);
+
+        Film film2 = Film.builder().name("test2").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("222").mpa(mpaStorage.getById(2L)).build();
+        filmService.add(film2);
+
+        Film film3 = Film.builder().name("test3").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("321").mpa(mpaStorage.getById(3L)).build();
+        filmService.add(film3);
+
+        List<Film> filmList = filmService.searchFilms("test", "G");
+
+        assertFalse(filmList.isEmpty());
     }
 }
