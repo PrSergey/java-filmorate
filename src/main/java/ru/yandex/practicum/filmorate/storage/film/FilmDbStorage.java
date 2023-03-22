@@ -343,5 +343,3 @@ public class FilmDbStorage implements FilmStorage {
         return calendar.get(Calendar.YEAR);
     }
 }
-
-}
