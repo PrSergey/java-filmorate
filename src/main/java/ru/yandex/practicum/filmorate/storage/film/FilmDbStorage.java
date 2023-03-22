@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
@@ -15,7 +14,6 @@ import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
-import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -225,17 +223,17 @@ public class FilmDbStorage implements FilmStorage {
         return getFilms(films);
     }
 
-    private Film makeFilm(ResultSet rs) throws SQLException {
+    public Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
         Set<Long> likes = getAllLikes(id);
-        List<Genre> genres = new ArrayList<>();
+        List<Genre> genres = genreStorage.getByFilmId(rs.getLong("id"));
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
-                rs.getString("mpa_name")
+                rs.getString("mpa_ratings.name")
         );
         List<Director> directors = new ArrayList<>();
         Film film = new Film(id, name, description, releaseDate, duration, genres, mpa, likes, directors);
@@ -267,4 +265,5 @@ public class FilmDbStorage implements FilmStorage {
             return result;
         });
     }
+
 }
