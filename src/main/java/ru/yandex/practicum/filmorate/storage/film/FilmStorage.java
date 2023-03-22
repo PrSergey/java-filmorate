@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -32,6 +31,6 @@ public interface FilmStorage {
 
     List<Film> getTop(Integer count);
 
-    List<Film> searchFilms(String query, String by);
+    List<Film> searchFilms(String query, List <String> by);
 
 }

@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -82,7 +84,13 @@ public class FilmService {
 
 
     public List<Film> searchFilms(String query, String by) {
-        return filmStorage.searchFilms(query, by);
+        List<String> splitBy = new ArrayList<>();
+        if (by.contains(",")) {
+            splitBy.addAll(Arrays.asList(by.toLowerCase().split(",")));
+        } else {
+            splitBy.add(by.toLowerCase());
+        }
+        return filmStorage.searchFilms(query.toLowerCase(), splitBy);
     }
 }
 
