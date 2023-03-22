@@ -169,6 +169,22 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year) {
+        List<Film> films = getTop(count);
+        List<Film> filmsFiltered;
+        if (genreId != 0 && year != 0) {
+            filmsFiltered = filmFilteredWithGenre(films, genreId);
+            return filmFilteredWithYear(filmsFiltered, year);
+        } else if (year != 0) {
+            return filmFilteredWithYear(films, year);
+        } else if (genreId != 0) {
+            return filmFilteredWithGenre(films, genreId);
+        } else {
+            return films;
+        }
+    }
+
+    @Override
     public Set<Long> getAllLikes(Long id) {
         String sql = "SELECT user_id from likes_list where film_id = ?";
         List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
@@ -266,5 +282,23 @@ public class FilmDbStorage implements FilmStorage {
             }
             return result;
         });
+    }
+
+    private List<Film> filmFilteredWithGenre(List<Film> films, Long genreId) {
+        return films.stream()
+                .filter(f -> f.getGenres().stream()
+                        .anyMatch(g -> Objects.equals(g.getId(), genreId)))
+                .collect(Collectors.toList());
+    }
+
+    private List<Film> filmFilteredWithYear(List<Film> filmsFiltered, Integer year) {
+        return filmsFiltered.stream().filter(film -> Objects.equals(year, parseDate(film.getReleaseDate())))
+                .collect(Collectors.toList());
+    }
+
+    private Integer parseDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR);
     }
 }
