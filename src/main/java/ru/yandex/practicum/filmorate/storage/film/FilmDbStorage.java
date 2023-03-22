@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
-import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -33,7 +32,6 @@ public class FilmDbStorage implements FilmStorage {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final GenreStorage genreStorage;
     private final EventFeedDBStorage eventFeedDBStorage;
-
     private final DirectorStorage directorStorage;
 
     @Override
@@ -169,6 +167,28 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public List<Film> getCommonFilm(Long userId, Long friendId) {
+        List<Film> commonFilm;
+        List<Film> filmsByUser = new ArrayList<>();
+        List<Film> filmsByFriends =  new ArrayList<>();
+
+        String sql = "SELECT * from likes_list where user_id = ? OR user_id = ?";
+        SqlRowSet filmWithLike = jdbcTemplate.queryForRowSet(sql, userId, friendId);
+        while (filmWithLike.next()){
+            Long filmId = filmWithLike.getLong("film_id");
+            if (filmWithLike.getLong("user_id") == userId){
+                filmsByUser.add(getById(filmId));
+            }
+            filmsByFriends.add(getById(filmId));
+        }
+
+        commonFilm = filmsByUser.stream().filter(filmsByFriends::contains)
+                .collect(Collectors.toList());
+        commonFilm.sort(Comparator.comparingInt(film -> film.getLikes().size()));
+        return commonFilm;
+    }
+
+    @Override
     public Set<Long> getAllLikes(Long id) {
         String sql = "SELECT user_id from likes_list where film_id = ?";
         List<Long> list = jdbcTemplate.queryForList(sql, Long.class, id);
@@ -225,17 +245,17 @@ public class FilmDbStorage implements FilmStorage {
         return getFilms(films);
     }
 
-    private Film makeFilm(ResultSet rs) throws SQLException {
+    public Film makeFilm(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
         String description = rs.getString("description");
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
         Set<Long> likes = getAllLikes(id);
-        List<Genre> genres = new ArrayList<>();
+        List<Genre> genres = genreStorage.getByFilmId(rs.getLong("id"));
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
-                rs.getString("mpa_name")
+                rs.getString("mpa_ratings.name")
         );
         List<Director> directors = new ArrayList<>();
         Film film = new Film(id, name, description, releaseDate, duration, genres, mpa, likes, directors);
@@ -267,4 +287,5 @@ public class FilmDbStorage implements FilmStorage {
             return result;
         });
     }
+
 }

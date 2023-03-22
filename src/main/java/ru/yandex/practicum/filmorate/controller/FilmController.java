@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.constant.SortType;
@@ -68,5 +69,11 @@ public class FilmController {
     @GetMapping("/films/director/{directorId}")
     public List<Film> getFilmsByDirectorId(@PathVariable Long directorId, @RequestParam SortType sortBy) {
         return filmService.getFilmsByDirectorId(directorId, sortBy);
+    }
+
+    @GetMapping("/films/common")
+    public List<Film> getCommonFilm(@RequestParam(value = "userId", required = false) Long userId,
+                                    @RequestParam(value = "friendId", required = false) Long friendId) {
+        return filmService.getCommonFilm(userId, friendId);
     }
 }
