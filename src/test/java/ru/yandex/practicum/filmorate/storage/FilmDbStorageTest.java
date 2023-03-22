@@ -200,4 +200,25 @@ public class FilmDbStorageTest {
 
         assertFalse(filmList.isEmpty());
     }
+
+    @Test
+    public void testCommonFilm() {
+
+        Film film1 = Film.builder().name("common").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("123").mpa(mpaStorage.getById(1L)).build();
+        Long idFilm1 = filmService.add(film1).getId();
+
+        User user1 = User.builder().email("test11@a.re").login("common").name("test11").build();
+        Long idUser1 = userStorage.add(user1).getId();
+
+        User user2 = User.builder().email("test1121@a.re").login("common2").name("test2").build();
+        Long idUser2 = userStorage.add(user2).getId();
+
+        filmStorage.addLike(idFilm1, idUser1);
+        filmStorage.addLike(idFilm1, idUser2);
+        assertEquals(filmStorage.getCommonFilm(idUser1, idUser2).get(0), filmStorage.getById(idFilm1));
+        filmStorage.deleteFilmById(idFilm1);
+        userStorage.deleteUserById(idUser1);
+        userStorage.deleteUserById(idUser2);
+    }
 }

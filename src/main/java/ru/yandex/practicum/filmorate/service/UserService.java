@@ -101,8 +101,9 @@ public class UserService {
             String sqlQueryRecommendations = "SELECT f.*, mpa_id, mr.name FROM films AS f INNER JOIN likes_list AS l " +
                     "ON f.id = l.film_id INNER JOIN mpa_ratings AS mr ON f.mpa_id = mr.id WHERE l.film_id NOT IN " +
                     "(SELECT film_id FROM likes_list WHERE user_id = ?) AND l.user_id = ?";
-            return jdbcTemplate.query(sqlQueryRecommendations, (rs, rowNum) ->
+            List<Film> films = jdbcTemplate.query(sqlQueryRecommendations, (rs, rowNum) ->
                     filmDbStorage.makeFilm(rs), userId, usersRecommendationId);
+            return filmDbStorage.getFilms(films);
         }
     }
 

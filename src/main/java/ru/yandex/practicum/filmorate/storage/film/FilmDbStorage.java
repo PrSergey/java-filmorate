@@ -121,10 +121,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(Long id, Long userId) {
-        String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
-        jdbcTemplate.update(sqlQuery, userId, id);
         EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.ADD);
         eventFeedDBStorage.setEventFeed(eventUser);
+        if(hasLikeFromUser(id, userId)){
+            return;
+        }
+        String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
+        jdbcTemplate.update(sqlQuery, userId, id);
     }
 
     @Override
@@ -312,7 +315,7 @@ public class FilmDbStorage implements FilmStorage {
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
         Set<Long> likes = getAllLikes(id);
-        List<Genre> genres = genreStorage.getByFilmId(rs.getLong("id"));
+        List<Genre> genres = new ArrayList<>();
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
                 rs.getString("mpa_ratings.name")
@@ -323,7 +326,7 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    private List<Film> getFilms(List<Film> films) {
+    public List<Film> getFilms(List<Film> films) {
         Map<Long, List<Genre>> genreMap = getGenresByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
         films.forEach(film -> film.setGenres(genreMap.get(film.getId())));
         films.forEach(film -> {
