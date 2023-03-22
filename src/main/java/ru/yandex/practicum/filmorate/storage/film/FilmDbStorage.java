@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
@@ -15,7 +14,6 @@ import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
-import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorageImp;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.sql.Date;
@@ -181,6 +179,49 @@ public class FilmDbStorage implements FilmStorage {
             return filmFilteredWithGenre(films, genreId);
         } else {
             return films;
+        }
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, List<String> searchBy) {
+        String searchTerm = "%" + query + "%";
+        String baseSqlQuery = "SELECT DISTINCT f.id, " +
+                "f.name, " +
+                "f.description, " +
+                "f.release_date, " +
+                "f.duration, " +
+                "f.mpa_id, " +
+                "r.rate, " +
+                "m.name AS mpa_name " +
+                "FROM films AS f " +
+                "JOIN mpa_ratings AS m ON m.id = f.mpa_id " +
+                "LEFT JOIN films_genres AS fg ON fg.film_id = f.id " +
+                "LEFT JOIN genres AS g ON fg.genre_id = g.id " +
+                "LEFT JOIN films_directors AS fd ON f.id = fd.film_id " +
+                "LEFT JOIN directors AS d ON fd.director_id = d.id " +
+                "LEFT JOIN (SELECT film_id, COUNT(user_id) rate FROM likes_list GROUP BY film_id) r ON f.id = r.film_id ";
+
+        List<Object> queryParams = new ArrayList<>();
+        StringBuilder whereClause = new StringBuilder();
+
+        for (String searchParam : searchBy) {
+            if (searchParam.contains("title")) {
+                whereClause.append("LOWER(f.name) LIKE ? OR LOWER(f.description) LIKE ? OR ");
+                queryParams.add(searchTerm);
+                queryParams.add(searchTerm);
+            }
+            if (searchParam.contains("director")) {
+                whereClause.append("LOWER(d.name) LIKE ? OR ");
+                queryParams.add(searchTerm);
+            }
+        }
+
+        if (whereClause.length() == 0) {
+            return getTop(10);
+        } else {
+            whereClause = new StringBuilder(whereClause.substring(0, whereClause.length() - 4));
+            String sqlQuery = baseSqlQuery + "WHERE " + whereClause + "ORDER BY r.rate DESC ";
+            return getFilms(jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs), queryParams.toArray()));
         }
     }
 

@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -80,6 +82,16 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 
+
+    public List<Film> searchFilms(String query, String by) {
+        List<String> splitBy = new ArrayList<>();
+        if (by.contains(",")) {
+            splitBy.addAll(Arrays.asList(by.toLowerCase().split(",")));
+        } else {
+            splitBy.add(by.toLowerCase());
+        }
+        return filmStorage.searchFilms(query.toLowerCase(), splitBy);
+    }
 
     public List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year) {
         return filmStorage.getPopularWithGenreAndYear(count, genreId, year);
