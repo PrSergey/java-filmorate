@@ -136,13 +136,6 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(list);
     }
 
-    @Override
-    public void deleteUserById(Long userId) {
-        getById(userId);
-        String sqlQuery = "DELETE FROM users WHERE id = ?;";
-        jdbcTemplate.update(sqlQuery, userId);
-    }
-
     public List<User> setFriendsToPerson(List<User> users) {
 
         String sqlFriend = "select * " +
