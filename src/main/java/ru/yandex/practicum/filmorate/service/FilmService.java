@@ -82,6 +82,10 @@ public class FilmService {
         return filmStorage.getFilmsByDirectorId(directorId, sortBy);
     }
 
+    public List<Film> getCommonFilm (Long userId, Long friendId){
+        return filmStorage.getCommonFilm(userId, friendId);
+    }
+
 
     public List<Film> searchFilms(String query, String by) {
         List<String> splitBy = new ArrayList<>();

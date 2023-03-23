@@ -130,7 +130,6 @@ public class FilmDbStorage implements FilmStorage {
         }
         String sqlQuery = "INSERT INTO likes_list (user_id, film_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, id);
-
     }
 
     @Override
@@ -171,6 +170,28 @@ public class FilmDbStorage implements FilmStorage {
                         "LIMIT ?;";
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
         return getFilms(films);
+    }
+
+    @Override
+    public List<Film> getCommonFilm(Long userId, Long friendId) {
+        List<Film> commonFilm;
+        List<Film> filmsByUser = new ArrayList<>();
+        List<Film> filmsByFriends =  new ArrayList<>();
+
+        String sql = "SELECT * from likes_list where user_id = ? OR user_id = ?";
+        SqlRowSet filmWithLike = jdbcTemplate.queryForRowSet(sql, userId, friendId);
+        while (filmWithLike.next()){
+            Long filmId = filmWithLike.getLong("film_id");
+            if (filmWithLike.getLong("user_id") == userId){
+                filmsByUser.add(getById(filmId));
+            }
+            filmsByFriends.add(getById(filmId));
+        }
+
+        commonFilm = filmsByUser.stream().filter(filmsByFriends::contains)
+                .collect(Collectors.toList());
+        commonFilm.sort(Comparator.comparingInt(film -> film.getLikes().size()));
+        return commonFilm;
     }
 
     @Override
@@ -296,6 +317,7 @@ public class FilmDbStorage implements FilmStorage {
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
         Set<Long> likes = new HashSet<>();
+
         List<Genre> genres = new ArrayList<>();
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
