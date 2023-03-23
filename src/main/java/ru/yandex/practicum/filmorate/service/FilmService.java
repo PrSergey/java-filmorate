@@ -35,6 +35,10 @@ public class FilmService {
         return receivedFilm;
     }
 
+    public void deleteFilmById(Long filmId){
+        filmStorage.deleteFilmById(filmId);
+    }
+
     public Film update(Film film) {
         if (film.getGenres() != null) {
             genreService.updateForFilm(film.getId(), film.getGenres());
