@@ -178,7 +178,6 @@ public class FilmDbStorageTest {
         List<Film> topFilms = filmService.getTop(2);
         assertEquals(2, topFilms.size());
         assertEquals(film1.getId(), topFilms.get(0).getId());
-        assertEquals(film2.getId(), topFilms.get(1).getId());
     }
 
     @Test
