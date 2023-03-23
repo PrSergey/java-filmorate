@@ -48,6 +48,7 @@ public class UserController {
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        log.info("Выдача общих фильмов");
         List<User> one = userService.getAllFriends(id);
         List<User> two = userService.getAllFriends(otherId);
         return one.stream().filter(two::contains).collect(Collectors.toList());
