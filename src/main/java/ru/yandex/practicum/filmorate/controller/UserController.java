@@ -59,17 +59,20 @@ public class UserController {
         return userService.getAllFriends(id);
     }
 
+
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} добавил пользователя {} в друзья", id, friendId);
         userService.makeFriends(id, friendId);
     }
 
+
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} удалил пользователя {} из друзей", id, friendId);
         userService.removeFriends(id, friendId);
     }
+
 
     @GetMapping("/{id}/feed")
     public List<EventUser> getEventFeed(@PathVariable Long id) {
@@ -83,11 +86,11 @@ public class UserController {
         userService.deleteUserById(userId);
     }
 
+
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendations(@PathVariable Long id) {
         log.info("Получение рекомендаций для пользователя {}", id);
         return userService.getRecommendations(id);
     }
-
 
 }
