@@ -64,6 +64,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
+
     public void deleteFilmById(@PathVariable Long filmId) {
         log.info("Фильм с id = {} удален", filmId);
         filmService.deleteFilmById(filmId);
@@ -85,4 +86,5 @@ public class FilmController {
                                   @RequestParam(value = "by", required = false) String by) {
         return filmService.searchFilms(query, by);
     }
+
 }

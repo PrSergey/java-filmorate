@@ -75,6 +75,10 @@ public class UserService {
         userStorage.deleteUserById(userId);
     }
 
+    public void deleteUserById(Long userId) {
+        userStorage.deleteUserById(userId);
+    }
+
     private void checkUserById(Long id, Long friendId) {
         User user = getById(id);
         User friend = getById(friendId);

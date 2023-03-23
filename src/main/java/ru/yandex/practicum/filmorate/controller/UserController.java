@@ -64,7 +64,7 @@ public class UserController {
         userService.makeFriends(id, friendId);
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")
+@DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriends(@PathVariable Long id, @PathVariable Long friendId) {
         log.info("Пользователь {} удалил пользователя {} из друзей", id, friendId);
         userService.removeFriends(id, friendId);
@@ -87,6 +87,5 @@ public class UserController {
         log.info("Получение рекомендаций для пользователя {}", id);
         return userService.getRecommendations(id);
     }
-
 
 }
