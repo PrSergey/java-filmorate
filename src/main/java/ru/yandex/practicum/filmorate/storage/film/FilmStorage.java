@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
@@ -18,8 +19,6 @@ public interface FilmStorage {
 
     Film update(Film film);
 
-    void delete(Film film);
-
     void deleteFilmById(Long filmId);
 
     void addLike(Long id, Long userId);
@@ -28,6 +27,13 @@ public interface FilmStorage {
 
     boolean hasLikeFromUser(Long id, Long userId);
 
+    List<Film> getFilmsByDirectorId(Long id, SortType sortBy);
+
     List<Film> getTop(Integer count);
+
+    List<Film> getCommonFilm(Long userId, Long friendId);
+    List<Film> searchFilms(String query, List <String> by);
+
+    List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year);
 
 }

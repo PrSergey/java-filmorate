@@ -4,9 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
+import ru.yandex.practicum.filmorate.constant.EventType;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -22,6 +27,7 @@ import java.util.Set;
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final EventFeedDBStorage eventFeedDBStorage;
 
     @Override
     public List<User> getAll() {
@@ -32,7 +38,7 @@ public class UserDbStorage implements UserStorage {
                         "u.name, " +
                         "u.birthday, " +
                         "FROM users AS u;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs));
+        return setFriendsToPerson(jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs)));
     }
 
     @Override
@@ -45,10 +51,12 @@ public class UserDbStorage implements UserStorage {
                         "u.birthday, " +
                         "FROM users AS u " +
                         "WHERE u.id = ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs), id)
+        User user = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не существует"));
+        user.setFriends(getUserFriendsById(user.getId()));
+        return user;
     }
 
     @Override
@@ -95,23 +103,19 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUserById(Long userId) {
-        getById(userId);
-        String sqlQuery = "DELETE FROM users WHERE id = ?;";
-        jdbcTemplate.update(sqlQuery, userId);
-    }
-
-
-    @Override
     public void makeFriends(Long userId, Long friendId) {
         String sqlQuery = "INSERT INTO friendships (user_id, friend_id) VALUES (?, ?);";
         jdbcTemplate.update(sqlQuery, userId, friendId);
+        EventUser eventUser = new EventUser(userId, friendId, EventType.FRIEND, EventOperation.ADD);
+        eventFeedDBStorage.setEventFeed(eventUser);
     }
 
     @Override
     public void removeFriends(Long userId, Long friendId) {
         String sqlQuery = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?;";
         jdbcTemplate.update(sqlQuery, userId, friendId);
+        EventUser eventUser = new EventUser(userId, friendId, EventType.FRIEND, EventOperation.REMOVE);
+        eventFeedDBStorage.setEventFeed(eventUser);
     }
 
     @Override
@@ -124,6 +128,29 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(list);
     }
 
+    @Override
+    public void deleteUserById(Long userId) {
+        getById(userId);
+        String sqlQuery = "DELETE FROM users WHERE id = ?;";
+        jdbcTemplate.update(sqlQuery, userId);
+    }
+
+    public List<User> setFriendsToPerson(List<User> users) {
+
+        String sqlFriend = "select * " +
+                "from friendships as f";
+        SqlRowSet sqlFriendsRow = jdbcTemplate.queryForRowSet(sqlFriend);
+        while (sqlFriendsRow.next()) {
+            for (User user : users) {
+                if (user.getId() == sqlFriendsRow.getLong("user_id")) {
+                    Long friendId = sqlFriendsRow. getLong("friend_id");
+                    user.getFriends().add(friendId);
+                }
+            }
+        }
+        return users;
+    }
+
     private User makeUser(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String email = rs.getString("email");
@@ -131,7 +158,7 @@ public class UserDbStorage implements UserStorage {
         String name = rs.getString("name");
         Date birthday = rs.getDate("birthday");
 
-        Set<Long> friends = getUserFriendsById(id);
+        Set<Long> friends = new HashSet<>();
         return new User(id, email, login, name, birthday, friends);
     }
 }
