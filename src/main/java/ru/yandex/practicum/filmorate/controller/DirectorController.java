@@ -13,31 +13,32 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/directors")
 public class DirectorController {
 
     private final DirectorService directorService;
 
-    @GetMapping("/directors")
+    @GetMapping
     public List<Director> findAll() {
         return directorService.getAll();
     }
 
-    @GetMapping("/directors/{id}")
+    @GetMapping("/{id}")
     public Director findById(@PathVariable Long id) {
         return directorService.getById(id);
     }
 
-    @PostMapping("/directors")
+    @PostMapping
     public Director create(@RequestBody @Valid Director director) {
         return directorService.add(director);
     }
 
-    @PutMapping("/directors")
+    @PutMapping
     public Director update(@RequestBody Director director) {
         return directorService.update(director);
     }
 
-    @DeleteMapping("/directors/{id}")
+    @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         directorService.delete(id);
     }
