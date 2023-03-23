@@ -71,6 +71,8 @@ public class FilmDbStorage implements FilmStorage {
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с id=" + id + " не существует"));
         film.setGenres(genreStorage.getByFilmId(id));
+        film.setLikes(getAllLikes(id));
+        film.setDirectors(directorStorage.getByFilmId(id));
         return film;
     }
 
@@ -314,7 +316,8 @@ public class FilmDbStorage implements FilmStorage {
         String description = rs.getString("description");
         Date releaseDate = rs.getDate("release_date");
         int duration = rs.getInt("duration");
-        Set<Long> likes = getAllLikes(id);
+        Set<Long> likes = new HashSet<>();
+
         List<Genre> genres = new ArrayList<>();
         Mpa mpa = new Mpa(
                 rs.getLong("mpa_id"),
@@ -322,7 +325,7 @@ public class FilmDbStorage implements FilmStorage {
         );
         List<Director> directors = new ArrayList<>();
         Film film = new Film(id, name, description, releaseDate, duration, genres, mpa, likes, directors);
-        film.setDirectors(directorStorage.getByFilmId(id));
+        film.setDirectors(new ArrayList<>());
         return film;
     }
 
@@ -332,6 +335,24 @@ public class FilmDbStorage implements FilmStorage {
         films.forEach(film -> {
             if (film.getGenres() == null) film.setGenres(new ArrayList<>());
         });
+        Map<Long, List<Director>> directorMap = getDirectorByFilmIds(films.stream().map(Film::getId).collect(Collectors.toList()));
+        films.forEach(film -> film.setDirectors(directorMap.get(film.getId())));
+        films.forEach(film -> {
+            if (film.getDirectors() == null) film.setDirectors(new ArrayList<>());
+        });
+        return addLikesFromDb(films);
+    }
+
+    private List<Film> addLikesFromDb(List<Film> films){
+        String sql = "SELECT user_id, film_id FROM likes_list";
+        SqlRowSet likesRow = jdbcTemplate.queryForRowSet(sql);
+        while (likesRow.next()) {
+            for (Film film : films) {
+                if(film.getId() == likesRow.getLong("film_id")){
+                    film.getLikes().add(likesRow.getLong("user_id"));
+                }
+            }
+        }
         return films;
     }
 
@@ -346,6 +367,22 @@ public class FilmDbStorage implements FilmStorage {
                 String name = rs.getString("name");
                 Genre genre = new Genre(genreId, name);
                 result.computeIfAbsent(filmId, k -> new ArrayList<>()).add(genre);
+            }
+            return result;
+        });
+    }
+
+    private Map<Long, List<Director>> getDirectorByFilmIds(List<Long> filmIds) {
+        String sqlQuery = "SELECT film_id, director_id, name FROM films_directors JOIN directors ON films_directors.director_id = directors.id WHERE film_id IN (:filmIds)";
+        MapSqlParameterSource parameters = new MapSqlParameterSource().addValue("filmIds", filmIds);
+        return namedParameterJdbcTemplate.query(sqlQuery, parameters, rs -> {
+            Map<Long, List<Director>> result = new HashMap<>();
+            while (rs.next()) {
+                Long filmId = rs.getLong("film_id");
+                Long directorId = rs.getLong("director_id");
+                String name = rs.getString("name");
+                Director director = new Director(directorId, name);
+                result.computeIfAbsent(filmId, k -> new ArrayList<>()).add(director);
             }
             return result;
         });
