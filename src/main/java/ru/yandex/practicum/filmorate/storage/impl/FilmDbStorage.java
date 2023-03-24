@@ -138,23 +138,19 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getTop(Integer count) {
         String sqlQuery =
-                "SELECT f.id, " +
-                        "f.name, " +
-                        "f." +
-                        "description, " +
-                        "f.release_date, " +
-                        "f.duration, " +
-                        "f.mpa_id, " +
-                        "m.name AS mpa_name " +
+                "SELECT f.id," +
+                        "f.name," +
+                        "f.description," +
+                        "f.release_date," +
+                        "f.duration," +
+                        "f.mpa_id," +
+                        "m.name AS mpa_name," +
+                        "COUNT(user_id)" +
                         "FROM films AS f " +
-                        "JOIN mpa_ratings AS m" +
-                        "    ON m.id = f.mpa_id " +
-                        "LEFT JOIN (SELECT film_id, " +
-                        "      COUNT(user_id) rate " +
-                        "      FROM likes_list " +
-                        "      GROUP BY film_id " +
-                        ") r ON f.id = r.film_id " +
-                        "ORDER BY r.rate DESC " +
+                        "JOIN mpa_ratings AS m ON m.id = f.mpa_id " +
+                        "LEFT JOIN LIKES_LIST as ll ON f.ID = ll.FILM_ID " +
+                        "group by f.id " +
+                        "ORDER BY COUNT(user_id) DESC " +
                         "LIMIT ?;";
         List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeFilm(rs), count);
         return getFilms(films);
