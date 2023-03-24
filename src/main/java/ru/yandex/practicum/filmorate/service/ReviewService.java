@@ -22,7 +22,6 @@ public class ReviewService {
     private final EventFeedStorage eventFeedStorage;
 
     public List<Review> getAll(Optional<Long> filmId, Optional<Integer> count) {
-        log.info("Запрос на получения всех отзывов");
         if (filmId.isEmpty() && count.isEmpty()) {
             return reviewStorage.getAll();
         }
@@ -30,13 +29,11 @@ public class ReviewService {
     }
 
     public Review getById(Long reviewId) {
-        log.info("Запрос на получение отзыва с id = {}", reviewId);
         return reviewStorage.getById(reviewId);
     }
 
     public Review add(Review review) {
         validateReview(review);
-        log.info("Запрос на добавление нового отзыва.");
 
         Review reviewAfterAdd = reviewStorage.add(review);
         EventUser eventUser = new EventUser(review.getUserId(), reviewAfterAdd.getReviewId(),
@@ -54,7 +51,6 @@ public class ReviewService {
                 EventType.REVIEW, EventOperation.UPDATE);
         eventFeedStorage.setEventFeed(eventUser);
 
-        log.info("Запрос на обновление отзыва к фильму с id = {}", review.getFilmId());
         return reviewStorage.update(review);
     }
 
@@ -91,4 +87,5 @@ public class ReviewService {
             throw new NotFoundException("Пользователь с таким id не был найден.");
         }
     }
+
 }

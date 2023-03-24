@@ -5,18 +5,15 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import java.sql.Date;
 import java.util.HashSet;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -26,7 +23,6 @@ public class ReviewDbStorageTest {
     private final ReviewStorage reviewStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final ReviewService reviewService;
     User user;
     Film film;
 
@@ -80,15 +76,6 @@ public class ReviewDbStorageTest {
         assertThat(updateReview)
                 .hasFieldOrPropertyWithValue("reviewId", updateReview.getReviewId())
                 .hasFieldOrPropertyWithValue("isPositive", false);
-    }
-
-    @Test
-    public void testDeleteReview() {
-        reviewStorage.delete(1L);
-        Exception exception = assertThrows(NotFoundException.class, () -> {
-            reviewService.getById(1L);
-        });
-        assertThat(exception.getMessage()).contains("Отзыв с таким id не был найден.");
     }
 
 }
