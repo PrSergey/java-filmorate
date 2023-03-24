@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.eventFeed;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 
 import lombok.RequiredArgsConstructor;
@@ -9,11 +9,11 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.constant.EventOperation;
 import ru.yandex.practicum.filmorate.constant.EventType;
 import ru.yandex.practicum.filmorate.model.EventUser;
+import ru.yandex.practicum.filmorate.storage.EventFeedStorage;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +21,9 @@ import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
-public class EventFeedDBStorageImp implements EventFeedDBStorage {
+public class EventFeedDbStorage implements EventFeedStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
-
 
     @Override
     public EventUser setEventFeed(EventUser event) {
@@ -45,6 +43,7 @@ public class EventFeedDBStorageImp implements EventFeedDBStorage {
             statement.setLong(5, event.getTimestamp());
             return statement;
         }, keyHolder);
+
         event.setEventId(Objects.requireNonNull(keyHolder.getKey()).longValue());
         return event;
     }

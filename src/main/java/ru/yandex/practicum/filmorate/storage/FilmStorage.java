@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage;
 
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.constant.SortType;
@@ -36,5 +36,6 @@ public interface FilmStorage {
     List<Film> searchFilms(String query, List <String> by);
 
     List<Film> getPopularWithGenreAndYear(Integer count, Long genreId, Integer year);
+    List<Film> getRecommendations(Long userId);
 
 }

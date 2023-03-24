@@ -3,11 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
+import ru.yandex.practicum.filmorate.constant.EventType;
 import ru.yandex.practicum.filmorate.constant.SortType;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.EventFeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +27,8 @@ public class FilmService {
     private final DirectorService directorService;
     private final DirectorStorage directorStorage;
 
+    private final EventFeedStorage eventFeedStorage;
+
     public List<Film> getAll() {
         return filmStorage.getAll();
     }
@@ -30,6 +36,7 @@ public class FilmService {
     public Film getById(Long id) {
         Film film = filmStorage.getById(id);
         film.setGenres(genreService.getByFilmId(id));
+        film.setDirectors(directorStorage.getByFilmId(id));
         return film;
     }
 
@@ -58,10 +65,15 @@ public class FilmService {
         if (film.getDirectors() == null) {
             directorStorage.deleteAllByFilmId(film.getId());
         }
-        return filmStorage.update(film);
+        Film filmAfterUpdate = filmStorage.update(film);
+        filmAfterUpdate.setGenres(genreService.getByFilmId(filmAfterUpdate.getId()));
+        filmAfterUpdate.setDirectors(directorStorage.getByFilmId(filmAfterUpdate.getId()));
+        return filmAfterUpdate;
     }
 
     public void addLike(Long id, Long userId) throws NotFoundException {
+        EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.ADD);
+        eventFeedStorage.setEventFeed(eventUser);
         filmStorage.getById(id);
         userStorage.getById(userId);
         filmStorage.addLike(id, userId);
@@ -71,6 +83,8 @@ public class FilmService {
         filmStorage.getById(id);
         userStorage.getById(userId);
         filmStorage.removeLike(id, userId);
+        EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.REMOVE);
+        eventFeedStorage.setEventFeed(eventUser);
     }
 
 

@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.mpa;
+package ru.yandex.practicum.filmorate.storage;
 
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;

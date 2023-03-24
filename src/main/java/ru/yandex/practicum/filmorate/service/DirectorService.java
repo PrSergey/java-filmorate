@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
 import java.util.List;
 
@@ -21,10 +21,6 @@ public class DirectorService {
 
     public Director getById(Long id) throws NotFoundException {
         return directorStorage.getById(id);
-    }
-
-    public List<Director> getByFilmId(Long filmId) throws NotFoundException {
-        return directorStorage.getByFilmId(filmId);
     }
 
     public Director add(Director director) {

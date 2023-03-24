@@ -1,7 +1,6 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -10,13 +9,9 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
-import ru.yandex.practicum.filmorate.constant.EventOperation;
-import ru.yandex.practicum.filmorate.constant.EventType;
 import ru.yandex.practicum.filmorate.constant.SortType;
 import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -31,10 +26,6 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final GenreStorage genreStorage;
-    private final EventFeedDBStorage eventFeedDBStorage;
-
-    private final DirectorStorage directorStorage;
 
     @Override
     public List<Film> getAll() {
@@ -71,9 +62,8 @@ public class FilmDbStorage implements FilmStorage {
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Фильм с id=" + id + " не существует"));
-        film.setGenres(genreStorage.getByFilmId(id));
+
         film.setLikes(getAllLikes(id));
-        film.setDirectors(directorStorage.getByFilmId(id));
         return film;
     }
 
@@ -125,8 +115,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void addLike(Long id, Long userId) {
-        EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.ADD);
-        eventFeedDBStorage.setEventFeed(eventUser);
         if(hasLikeFromUser(id, userId)){
             return;
         }
@@ -137,8 +125,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public void removeLike(Long id, Long userId) {
         String sqlQuery = "DELETE FROM likes_list WHERE film_id = ? AND user_id = ?;";
-        EventUser eventUser = new EventUser(userId, id, EventType.LIKE, EventOperation.REMOVE);
-        eventFeedDBStorage.setEventFeed(eventUser);
         jdbcTemplate.update(sqlQuery, id, userId);
     }
 
@@ -209,6 +195,24 @@ public class FilmDbStorage implements FilmStorage {
             return filmFilteredWithGenre(films, genreId);
         } else {
             return films;
+        }
+    }
+
+    @Override
+    public List<Film> getRecommendations(Long userId) {
+        String sqlQueryUsersRecommendation = "SELECT user_id FROM likes_list WHERE film_id IN " +
+                "(SELECT film_id FROM likes_list WHERE user_id = ?) AND user_id != ?";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sqlQueryUsersRecommendation, userId, userId);
+        if (!sqlRowSet.next()) {
+            return new ArrayList<>();
+        } else {
+            Long usersRecommendationId = sqlRowSet.getLong("user_id");
+            String sqlQueryRecommendations = "SELECT f.*, mpa_id, mr.name FROM films AS f INNER JOIN likes_list AS l " +
+                    "ON f.id = l.film_id INNER JOIN mpa_ratings AS mr ON f.mpa_id = mr.id WHERE l.film_id NOT IN " +
+                    "(SELECT film_id FROM likes_list WHERE user_id = ?) AND l.user_id = ?";
+            List<Film> films = jdbcTemplate.query(sqlQueryRecommendations, (rs, rowNum) ->
+                    makeFilm(rs), userId, usersRecommendationId);
+            return getFilms(films);
         }
     }
 

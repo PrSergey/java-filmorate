@@ -4,8 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.webjars.NotFoundException;
+import ru.yandex.practicum.filmorate.constant.EventOperation;
+import ru.yandex.practicum.filmorate.constant.EventType;
+import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.EventFeedStorage;
+import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +19,7 @@ import java.util.Optional;
 @Slf4j
 public class ReviewService {
     private final ReviewStorage reviewStorage;
+    private final EventFeedStorage eventFeedStorage;
 
     public List<Review> getAll(Optional<Long> filmId, Optional<Integer> count) {
         log.info("Запрос на получения всех отзывов");
@@ -32,16 +37,32 @@ public class ReviewService {
     public Review add(Review review) {
         validateReview(review);
         log.info("Запрос на добавление нового отзыва.");
-        return reviewStorage.add(review);
+
+        Review reviewAfterAdd = reviewStorage.add(review);
+        EventUser eventUser = new EventUser(review.getUserId(), reviewAfterAdd.getReviewId(),
+                EventType.REVIEW, EventOperation.ADD);
+        eventFeedStorage.setEventFeed(eventUser);
+
+        return reviewAfterAdd;
     }
 
     public Review update(Review review) {
         validateReview(review);
+
+        Long reviewByUserId = getById(review.getReviewId()).getUserId();
+        EventUser eventUser = new EventUser(reviewByUserId, review.getReviewId(),
+                EventType.REVIEW, EventOperation.UPDATE);
+        eventFeedStorage.setEventFeed(eventUser);
+
         log.info("Запрос на обновление отзыва к фильму с id = {}", review.getFilmId());
         return reviewStorage.update(review);
     }
 
     public void delete(Long reviewId) {
+        Review review = getById(reviewId);
+        EventUser eventUser = new EventUser(review.getUserId(), reviewId,
+                EventType.REVIEW, EventOperation.REMOVE);
+        eventFeedStorage.setEventFeed(eventUser);
         reviewStorage.delete(reviewId);
     }
 

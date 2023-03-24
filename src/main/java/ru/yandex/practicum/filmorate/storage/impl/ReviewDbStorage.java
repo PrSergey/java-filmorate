@@ -1,18 +1,13 @@
-package ru.yandex.practicum.filmorate.storage.review;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
-import ru.yandex.practicum.filmorate.constant.EventOperation;
-import ru.yandex.practicum.filmorate.constant.EventType;
-import ru.yandex.practicum.filmorate.model.EventUser;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.eventFeed.EventFeedDBStorage;
-
-import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 
 import java.sql.PreparedStatement;
@@ -23,12 +18,9 @@ import java.util.List;
 import java.util.Objects;
 
 @AllArgsConstructor
-@Component
+@Repository
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    private final EventFeedDBStorage eventFeedDBStorage;
-
 
     @Override
     public List<Review> getAll(Long filmId, Integer count) {
@@ -70,11 +62,10 @@ public class ReviewDbStorage implements ReviewStorage {
                 " WHERE r.id = ? " +
                 " GROUP BY r.id";
 
-        Review review = jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), reviewId)
+        return jdbcTemplate.query(sql, (rs, rowNum) -> makeReview(rs), reviewId)
                 .stream()
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Отзыв с таким id не был найден."));
-        return review;
     }
 
     @Override
@@ -90,10 +81,6 @@ public class ReviewDbStorage implements ReviewStorage {
             return ps;
         }, keyHolder);
         review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
-
-        EventUser eventUser = new EventUser(review.getUserId(), review.getReviewId(),
-                EventType.REVIEW, EventOperation.ADD);
-        eventFeedDBStorage.setEventFeed(eventUser);
         return review;
     }
 
@@ -106,20 +93,12 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getIsPositive(),
                 review.getReviewId()
         );
-        Long reviewByUserId = getById(review.getReviewId()).getUserId();
-        EventUser eventUser = new EventUser(reviewByUserId, review.getReviewId(),
-                EventType.REVIEW, EventOperation.UPDATE);
-        eventFeedDBStorage.setEventFeed(eventUser);
         return getById(review.getReviewId());
     }
 
     @Override
     public void delete(Long reviewId) {
         String sql = "DELETE FROM reviews WHERE id = ? ";
-        Review review = getById(reviewId);
-        EventUser eventUser = new EventUser(review.getUserId(), reviewId,
-                EventType.REVIEW, EventOperation.REMOVE);
-        eventFeedDBStorage.setEventFeed(eventUser);
         jdbcTemplate.update(sql, reviewId);
     }
 
