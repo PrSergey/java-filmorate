@@ -1,12 +1,14 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,6 +25,7 @@ public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
+
     @Override
     public List<User> getAll() {
         String sqlQuery =
@@ -32,7 +35,7 @@ public class UserDbStorage implements UserStorage {
                         "u.name, " +
                         "u.birthday, " +
                         "FROM users AS u;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs));
+        return setFriendsToPerson(jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs)));
     }
 
     @Override
@@ -45,10 +48,12 @@ public class UserDbStorage implements UserStorage {
                         "u.birthday, " +
                         "FROM users AS u " +
                         "WHERE u.id = ?;";
-        return jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs), id)
+        User user = jdbcTemplate.query(sqlQuery, (rs, rn) -> makeUser(rs), id)
                 .stream()
                 .findAny()
                 .orElseThrow(() -> new NotFoundException("Пользователь с id=" + id + " не существует"));
+        user.setFriends(getUserFriendsById(user.getId()));
+        return user;
     }
 
     @Override
@@ -112,6 +117,7 @@ public class UserDbStorage implements UserStorage {
     public void removeFriends(Long userId, Long friendId) {
         String sqlQuery = "DELETE FROM friendships WHERE user_id = ? AND friend_id = ?;";
         jdbcTemplate.update(sqlQuery, userId, friendId);
+
     }
 
     @Override
@@ -124,6 +130,22 @@ public class UserDbStorage implements UserStorage {
         return new HashSet<>(list);
     }
 
+    public List<User> setFriendsToPerson(List<User> users) {
+
+        String sqlFriend = "select * " +
+                "from friendships as f";
+        SqlRowSet sqlFriendsRow = jdbcTemplate.queryForRowSet(sqlFriend);
+        while (sqlFriendsRow.next()) {
+            for (User user : users) {
+                if (user.getId() == sqlFriendsRow.getLong("user_id")) {
+                    Long friendId = sqlFriendsRow. getLong("friend_id");
+                    user.getFriends().add(friendId);
+                }
+            }
+        }
+        return users;
+    }
+
     private User makeUser(ResultSet rs) throws SQLException {
         Long id = rs.getLong("id");
         String email = rs.getString("email");
@@ -131,7 +153,7 @@ public class UserDbStorage implements UserStorage {
         String name = rs.getString("name");
         Date birthday = rs.getDate("birthday");
 
-        Set<Long> friends = getUserFriendsById(id);
+        Set<Long> friends = new HashSet<>();
         return new User(id, email, login, name, birthday, friends);
     }
 }

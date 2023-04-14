@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.genre;
+package ru.yandex.practicum.filmorate.storage;
 
 import org.webjars.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;

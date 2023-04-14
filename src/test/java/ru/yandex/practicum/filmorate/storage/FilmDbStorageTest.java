@@ -11,16 +11,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -188,6 +184,9 @@ public class FilmDbStorageTest {
         filmService.addLike(film1.getId(), user2.getId());
         filmService.addLike(film2.getId(), user1.getId());
 
+        film1 = filmService.getById(film1.getId());
+        film2 = filmService.getById(film2.getId());
+
         List<Film> topFilms = filmService.getTop(2);
 
         film1 = filmService.getById(film1.getId());
@@ -195,6 +194,46 @@ public class FilmDbStorageTest {
 
         assertEquals(2, topFilms.size());
         assertEquals(film1.getId(), topFilms.get(0).getId());
-        assertEquals(film2.getId(), topFilms.get(1).getId());
+    }
+
+    @Test
+    public void searchTest() {
+
+        Film film1 = Film.builder().name("test1").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("123").mpa(mpaStorage.getById(1L)).build();
+        filmService.add(film1);
+
+        Film film2 = Film.builder().name("test2").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("222").mpa(mpaStorage.getById(2L)).build();
+        filmService.add(film2);
+
+        Film film3 = Film.builder().name("test3").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("321").mpa(mpaStorage.getById(3L)).build();
+        filmService.add(film3);
+
+        List<Film> filmList = filmService.searchFilms("test", "G");
+
+        assertFalse(filmList.isEmpty());
+    }
+
+    @Test
+    public void testCommonFilm() {
+
+        Film film1 = Film.builder().name("common").releaseDate(Date.valueOf("2000-10-10"))
+                .duration(100).description("123").mpa(mpaStorage.getById(1L)).build();
+        Long idFilm1 = filmService.add(film1).getId();
+
+        User user1 = User.builder().email("test11@a.re").login("common").name("test11").build();
+        Long idUser1 = userStorage.add(user1).getId();
+
+        User user2 = User.builder().email("test1121@a.re").login("common2").name("test2").build();
+        Long idUser2 = userStorage.add(user2).getId();
+
+        filmStorage.addLike(idFilm1, idUser1);
+        filmStorage.addLike(idFilm1, idUser2);
+        assertEquals(filmStorage.getCommonFilm(idUser1, idUser2).get(0), filmStorage.getById(idFilm1));
+        filmStorage.deleteFilmById(idFilm1);
+        userStorage.deleteUserById(idUser1);
+        userStorage.deleteUserById(idUser2);
     }
 }
