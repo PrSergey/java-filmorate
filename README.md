@@ -51,4 +51,5 @@ ___
 ## Хранение данных.
 Данные хранятся в реляционной базе данных.  
 БД: H2.
-![](schema.png)
+![image](https://github.com/PrSergey/java-filmorate/assets/112753342/b12eec93-0057-458f-acfa-d1e77af03778)
+
